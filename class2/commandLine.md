@@ -55,7 +55,7 @@ Or a count:
 `grep -rl "dictionary" .  |  wc `
 5       5     128
 
-But 128 characters doesn't make sense, so who knows...
+But 128 characters doesn't make sense, so who knows... /play letitgo
 
 **Optional: Use the the command line to discover something "interesting" about the Chipotle data. Try using the commands from the "advanced" section!**
 
