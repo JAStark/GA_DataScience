@@ -3,7 +3,7 @@
 **Look at the head and the tail of chipotle.tsv in the data subdirectory of this repo. Think for a minute about how the data is structured. What do you think each column means? What do you think each row means.
 Tell me! (If you're unsure, look at more of the file contents.)**
 
-* Column contents are: 
+Column contents are: 
 * order_id -> and order that constitutes one payment event
 * quantity -> how many of that thing (in that row) is ordered
 * item_name -> name of the thing ordered on that row
