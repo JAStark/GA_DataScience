@@ -34,7 +34,7 @@ with open('airlines.csv', mode='rU') as f:
 #we want to get rid of the \n end of line bits
 import csv
 with open('airlines.csv', mode='rU') as f:
-    file_nested_list = [row for row in csv.reader(f)] #plit on commas for us, and take care of new lines
+    file_nested_list = [row for row in csv.reader(f)] #split on commas for us, and take care of new lines
     
 #now we also want to separate out the header row
 header = file_nested_list[0]
