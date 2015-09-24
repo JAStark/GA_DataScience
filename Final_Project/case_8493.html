@@ -1,0 +1,7311 @@
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+	<meta name="copyright" content="Occupational Research and Assessment 2009" />
+	<meta name="distribution" content="global" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<title>NamUs - National Unidentified Persons Data System</title>
+	
+	<link href="/stylesheets/layout.css?1379332955" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/grid.css?1270750264" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/media.css?1256220478" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/message.css?1354636236" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/googiespell.css?1354636236" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/listing.css?1254429499" media="screen" rel="stylesheet" type="text/css" />
+	<link href="/stylesheets/jquery-ui-1.7.3.custom.css?1299001675" media="screen" rel="stylesheet" type="text/css" />
+	
+	<script src="/javascripts/jquery.js?1261154331" type="text/javascript"></script>
+	<script src="/javascripts/jquery.jqGrid.js?1253737954" type="text/javascript"></script>
+	<script src="/javascripts/jquery.simplemodal.js?1261154331" type="text/javascript"></script>
+	<script src="/javascripts/jquery.maskedinput-1.2.2.min.js?1297798399" type="text/javascript"></script>
+	<script src="/javascripts/jquery-ui-1.7.3.custom.min.js?1299001674" type="text/javascript"></script>
+	<script src="/javascripts/googiespell/AJS.js?1354636235" type="text/javascript"></script>
+	<script src="/javascripts/googiespell/googiespell.js?1354636235" type="text/javascript"></script>
+	<script src="/javascripts/googiespell/cookiesupport.js?1354636235" type="text/javascript"></script>
+	<script src="/javascripts/global.js?1380563181" type="text/javascript"></script>
+	<script src="/javascripts/media.js?1326208124" type="text/javascript"></script>
+	
+	<script type="text/javascript">
+		
+			$(document).ajaxSend(function(event, request, settings) {
+				settings.data = settings.data || "";
+				settings.data += (settings.data ? "&" : "") + "authenticity_token=" + encodeURIComponent("d7a49ab667a7a68913d2395ed38a439d42d3de56");
+				request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			});
+		
+		
+		var non_public_related_topics = ['2','3','4','5'];
+		
+		$(function() {
+			$('.date_picker').mask("99/99/9999",{placeholder:"*"});
+			$(".date_picker").datepicker(
+				{
+					dateFormat: 'mm/dd/yy',
+					changeMonth: true,
+					changeYear: true,
+					yearRange: '1900:2015',
+					showOn: 'button',
+					buttonImage: '/images/ico_calendar.gif?1256142833',
+					buttonText: 'Calendar',
+					buttonImageOnly: true,
+					showButtonPanel: true,
+					closeText: 'Close'
+				}
+			);
+		});
+		
+		$(document).ready(function() {
+			$("#search_Criteria").focus(function() {
+				if ($("#search_Criteria").val() == ' Search...')
+					$("#search_Criteria").val('');
+			});
+			
+			$("#search_Criteria").blur(function() {
+				if ($("#search_Criteria").val() == '')
+					$("#search_Criteria").val(' Search...');
+			});
+			
+			$('.date_picker').focus(function() {
+				$("#poppedout").show();
+				var x = $(this).offset().left;
+				var y = $(this).offset().top - 28;
+
+				$("#poppedout").css('top', y+'px');
+				$("#poppedout").css('left', x+'px');
+				$("#poppedout_link").attr('class', $(this).attr('id'));
+			});
+			
+			$(".date_picker").blur(function() {
+				if ($(this).val() != '')
+				{
+					
+						var monthfield = $(this).val().split("/")[0]
+						var dayfield = $(this).val().split("/")[1]
+						var yearfield = $(this).val().split("/")[2]
+					
+					var dayobj = new Date(yearfield, monthfield-1, dayfield)
+					if ((dayobj.getMonth()+1!=monthfield)||(dayobj.getDate()!=dayfield)||(dayobj.getFullYear()!=yearfield))
+					{
+						alert("The date you entered is invalid. Please correct before continuing.")
+						$(this).focus();
+					}
+				}
+				
+				$("#poppedout").hide();
+			});
+			
+			$("#poppedout").live('mouseover', function() {
+				$(this).attr('id', 'poppedout_over');
+			})
+			
+			$("#poppedout_over").live('mouseout', function() {
+				$(this).attr('id', 'poppedout');
+				if (document.activeElement == document.body || document.activeElement.id == 'poppedout')
+				{
+					$("#poppedout").hide();
+				}
+			})
+			
+			$("#poppedout_link").live('click', function() {
+				$("#poppedout_over").attr('id', 'poppedout');
+				var date = new Date();
+				
+				month = (date.getMonth()+1);
+				if (month < 10)
+				{
+					month = '0' + month;
+				}
+				
+				day = date.getDate();
+				if (day < 10)
+				{
+					day = '0' + day;
+				}
+				
+				year = date.getFullYear();
+				
+				
+					$("#" + $(this).attr('class').replace('.', '\\.')).val(month + '/' + day + '/' + year);
+				
+				
+				if ($("#" + $(this).attr('class').replace('.', '\\.') + "_hours") != null)
+				{
+					hour = date.getHours();
+					if (hour < 10)
+					{
+						hour = '0' + hour;
+					}
+					$("#" + $(this).attr('class').replace('.', '\\.') + "_hours").val(hour);
+				}
+				
+				if ($("#" + $(this).attr('class').replace('.', '\\.') + "_minutes") != null)
+				{
+					hour = date.getMinutes();
+					if (hour < 10)
+					{
+						hour = '0' + hour;
+					}
+					$("#" + $(this).attr('class').replace('.', '\\.') + "_minutes").val(hour);
+				}
+				
+				$("#poppedout").hide();
+			})
+			
+			
+			
+			
+		});
+	</script>
+	
+	
+	<script type="text/javascript">
+		<!--
+		function close_unclaimed_modal()
+		{
+			$.modal.close();
+		}
+		
+		
+		
+		$(document).ready(function() {
+			change_block('case_information');
+			
+			$("#case_status").change(function() {
+				
+				if ($(this).val() == 'Unidentified Living') {
+					$(".non-living").hide();
+				} else if ($(this).val() == 'Unidentified') {
+					$(".non-living").show();
+				}
+			})
+			
+			
+			
+			$("#case_state_found_id").change(function() {
+				population_county_choices("case_state_found_id", "case_county_found_id");
+			})
+			
+			$("#case_autopsy_facility_state_id").change(function() {
+				population_facility_choices("case_autopsy_facility_state_id", "case_autopsy_facility_agency_id");
+			})
+			
+			$("#case_autopsy_facility_agency_id").change(function() {
+				if ($("#case_autopsy_facility_agency_id").val() == "")
+				{
+					$("#autopsy_facility_address").html('');
+					$("#autopsy_facility_phone").html('');
+				}
+				else
+				{
+					var sURL = '/en/ajax/get_facility/' + $("#case_autopsy_facility_agency_id").val();
+					$.getJSON(sURL, function(json){
+						var myObject = eval(json);
+						
+						$("#autopsy_facility_address").html(myObject['address']);
+						$("#autopsy_facility_phone").html(myObject['phone']);
+					});
+				}
+			})
+			
+			$(".tooth").keypress(function (e) {
+				return dental_code_check(e, $(this).val());
+			})
+			
+			$("#case_status").change(function() {
+				if ($(this).val() == 'Identified')
+				{
+					$("#identified").slideDown('slow');
+				}
+				else
+				{
+					$("#identified").slideUp('slow');
+				}
+			})
+			
+			$(".physical_medical_check").click(function() {
+				temp_id = '#' + $(this).attr('id') + '_details';
+				if ($(this).attr('checked') == true)
+				{
+					$(temp_id).show();
+				}
+				else
+				{
+					$(temp_id).val('');
+					$(temp_id).hide();
+				}
+			})
+			
+			$("#ncic_dental_link").click(function() {
+				if ($(".ncic_dental").css('display') == 'none')
+				{
+					$(this).html('Hide NCIC Dental Chart');
+					$(".ncic_dental").show();
+				}
+				else
+				{
+					$(this).html('Show NCIC Dental Chart');
+					$(".ncic_dental").hide();
+				}
+			})
+			
+			$("#case_body_inventory_all_parts_recovered").click(function() {
+				if ($(this).attr('checked') == true)
+				{
+					$(".body_inventory_not_found").attr('disabled', true);
+				}
+				else
+				{
+					$(".body_inventory_not_found").attr('disabled', false);
+				}
+			})
+			
+			$(".body_inventory_not_found").click(function() {
+				inventory_missing_parts = ['body_inventory_head_not_recovered', 'body_inventory_torso_not_recovered', 'body_inventory_limbs_not_recovered', 'body_inventory_hands_not_recovered'];
+				missing_part = false;
+				for (i = 0; i < inventory_missing_parts.length; i++)
+				{
+					if ($("#case_" + inventory_missing_parts[i]).attr('checked') == true)
+					{
+						missing_part = true;
+					}
+				}
+				
+				if (missing_part == true)
+				{
+					$("#case_body_inventory_all_parts_recovered").attr('disabled', true);
+				}
+				else
+				{
+					$("#case_body_inventory_all_parts_recovered").attr('disabled', false);
+				}
+			})
+			
+			
+			
+			
+			
+			
+			
+			$("#btnTrackCase").click(function() {
+				$.post("/en/ajax/track_case/8493", { user_id: 0 }, function(json){
+					var myObject = eval(json);
+					if (myObject['status'] == 'added')
+					{
+						$("#btnTrackCase").val("Remove from Case Tracking");
+						alert('NamUs UP Case # 8493 is now being tracked.');
+					}
+					else if (myObject['status'] == 'removed')
+					{
+						$("#btnTrackCase").val("Add to Case Tracking");
+						alert('NamUs UP Case # 8493 has been removed from your case tracking.');
+					}
+					else
+					{
+						alert(myObject['status']);
+					}
+				}, "json");
+			});
+			
+			$(".show_hide_missing_requirements").click(function() {
+				if ($("#missing_requirements").css('display') == 'none')
+				{
+					$("#missing_requirements").show();
+					$(".show_hide_missing_requirements").html('Hide missing requirements');
+				}
+				else
+				{
+					$("#missing_requirements").hide();
+					$(".show_hide_missing_requirements").html('View missing requirements');
+				}
+			})
+			
+			$("#Delete").click(function() {
+				msg = "WARNING : All data will be lost!!!\n\nAre you sure you want to delete this case?";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+			})
+			
+			$("#AcceptCase").click(function() {
+				msg = "Are you sure you want to \"Accept\" this case?";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+			})
+
+			$("#PublishCase").click(function() {
+				msg = "Are you sure you want to \"Publish\" this case?";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+			})
+
+			$("#AcceptPublishCase").click(function() {
+				msg = "Are you sure you want to \"Accept and Publish\" this case?";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+				else
+				{
+					$("#case_arrows").hide();
+				}
+			})
+			
+			$("#RejectCase").click(function() {
+				msg = "Are you sure you want to \"Reject\" this case?";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+				else
+				{
+					$("#case_arrows").hide();
+				}
+			})
+
+			$("#UnPublishCase").click(function() {
+				msg = "Un-Publish";
+				if (!confirm(msg))
+				{
+					return false;
+				}
+			})
+			
+			$("#floating_save_button_image").hover(
+				function() {
+					$(this).attr('src', '/images/save_down_ico_en.png?1326208124');
+				},
+				function() {
+					$(this).attr('src', '/images/save_ico_en.png?1326208124');
+				}
+			)
+			
+			$("#floating_save_button_image_changes_page").hover(
+				function() {
+					$(this).attr('src', '/images/save_down_ico_en.png?1326208124');
+				},
+				function() {
+					$(this).attr('src', '/images/save_ico_en.png?1326208124');
+				}
+			)
+			
+			$("#case_submit").click(function() {
+				if ($("#case_height").val() != '' && $("#case_height").val() != 0 && ($("#case_height").val() < 9 || $("#case_height").val() > 120))
+				{
+					msg = "The height you have entered for this person is not in the normal range.\nPlease check your entry to make sure it is the persons height in \"inches\".";
+					alert(msg);
+					return false;
+				}
+			})
+			
+			$("#floating_save_button_image").click(function() {
+				if ($("#case_height").val() != '' && $("#case_height").val() != 0 && ($("#case_height").val() < 9 || $("#case_height").val() > 120))
+				{
+					msg = "The height you have entered for this person is not in the normal range.\nPlease check your entry to make sure it is the persons height in \"inches\".";
+					alert(msg);
+					return false;
+				}
+			})
+			
+			
+		});
+		
+		$(window).scroll(function() {
+			$('#save_changes_image').css('top', (get_vertical_scroll_position() + 188) + "px");
+		});
+		$(window).scroll(function() {
+			$('#save_changes_image_changes_page').css('top', (get_vertical_scroll_position() + 188) + "px");
+		});
+		
+		
+		-->
+	</script>
+
+	<script type="text/javascript">
+	<!--
+		var sOldBlock = '';
+		
+		var bWorking = false;
+		
+		var aTabs = new Array('case_information','demographics','circumstances','physical_medical','fingerprints','clothing_accessories','dental','dna','images','documents','reports','contacts');
+		
+		function goto_next_page()
+		{
+			iNextIndex = find_index() + 1;
+			change_block(aTabs[iNextIndex]);
+		}
+		
+		function goto_previous_page()
+		{
+			iPreviousIndex = find_index() - 1;
+			change_block(aTabs[iPreviousIndex]);
+		}
+		
+		function check_status()
+		{
+			if (find_index() >= (aTabs.length - 1))
+			{
+				$("#btnNextPage").attr('disabled', true);
+				$("#btnNextPage").hide();
+			}
+			else
+			{
+				$("#btnNextPage").attr('disabled', false);
+				$("#btnNextPage").show();
+			}
+			
+			if (find_index() <= 0)
+			{
+				$("#btnPreviousPage").attr('disabled', true);
+				$("#btnPreviousPage").hide();
+			}
+			else
+			{
+				$("#btnPreviousPage").attr('disabled', false);
+				$("#btnPreviousPage").show();
+			}
+		}
+		
+		function find_index()
+		{
+			for (i = 0; i < aTabs.length; ++i)
+			{
+				if (aTabs[i] == sOldBlock)
+				{
+					return i;
+				}
+			}
+		}
+		
+		function change_block(sNewBlockID)
+		{
+			if (bWorking == false)
+			{
+				bWorking = true;
+				
+				if (sNewBlockID == sOldBlock)
+				{
+					$(".case_block").hide();
+					$("#" + sNewBlockID).show();
+					bWorking = false;
+				}
+				else if (sNewBlockID != "")
+				{
+					$("#current_page").val(sNewBlockID);
+					
+					if (sOldBlock == '')
+					{
+						$("#" + sNewBlockID).slideDown('slow', function() {
+							bWorking = false;
+						});
+					}
+					else
+					{
+						$(".case_block").slideUp();
+						$("#" + sOldBlock).slideUp("slow", function(){ 
+							$("#" + sNewBlockID).slideDown('slow', function() {
+								bWorking = false;
+							});
+						});
+					}
+					
+					if (sNewBlockID == 'changes')
+					{
+						$(".basic_save_choices").hide();
+						$(".changes_save_button").show();
+					}
+					else
+					{
+						$(".basic_save_choices").show();
+						$(".changes_save_button").hide();
+					}
+				}
+				
+				sOldBlock = sNewBlockID;
+				
+				check_status();
+				scroll(0,0);
+			}
+		}
+	-->
+	</script>
+
+	<script type="text/javascript">
+		<!--
+			function show_all_exclusions()
+			{
+				$('.hidden_exclusions').show();
+				$("#show_exclusions_link").hide();
+				$("#hide_exclusions_link").show();
+			}
+			
+			function hide_exclusions()
+			{
+				$('.hidden_exclusions').hide();
+				$("#show_exclusions_link").show();
+				$("#hide_exclusions_link").hide();
+			}
+		-->
+	</script>
+
+	<script type="text/javascript">
+		<!--
+		function filter_images(case_id, topic_value)
+		{
+			if (topic_value == "Clear")
+			{
+				$("#image_filter_RelatedTopic_id").val('');
+			}
+			
+			$("#image_box").html('');
+			$("#large_image").html('<table style="width:100%; height:100%;"><tr><td style="vertical-align:middle; font-size:120%; font-weight:bold;">Click on an image below to view a larger version.</td></tr></table>');
+			$("#image_details").html('');
+			
+			$.post("/en/ajax/filter_images/", { case_id: case_id, filter_id: $("#image_filter_RelatedTopic_id").val() }, function(json){
+				var myObject = eval(json);
+				
+				sHTML = '';
+				sHTML += '<table><tr>';
+				for(i=0; i<myObject['images'].length; i++)
+				{
+					sHTML += '<td id="thumb_' + myObject['images'][i] + '" class="thumbnail" style="vertical-align:middle;" onclick="load_image(\'thumb_' + myObject['images'][i] + '\');">';
+					sHTML += '<img src="/en/medias/thumb/' + myObject['images'][i] + '" alt="" />';
+					sHTML += '</td>';
+				}
+				sHTML += '</tr></table>';
+				
+				$("#image_box").html(sHTML);
+			}, "json");
+		}
+		
+		function load_image_view_only(imageId)
+		{
+			$("#large_image").html('');
+			$("#large_image").css('text-align', 'left');
+			$("#large_image").append('<div id="image_loading" class="loading_bar">Loading... . . .<br /><img src="/images/loadingAnimation.gif" alt="Loading" /></div>');
+			$("#image_details").html('');
+			$("#image_details").append('<div id="details_loading" class="loading_bar">Loading... . . .<br /><img src="/images/loadingAnimation.gif" alt="Loading" /></div>');
+			var sURL = "/en/ajax/load_image/" + imageId.slice(6);
+			$.getJSON(sURL, function(json){
+				var myObject = eval(json);
+				$("#large_image").html('');
+				$("#image_details").html('');
+				$("#large_image").append('<a href="/en/medias/full/' + myObject['id'] + '" target="_new"><img src="/en/medias/show/' + myObject['id'] + '" alt="" title="Click to enlarge" /></a>');
+				
+				details = '<input type="hidden" name="image_id" value="' + myObject['id'] + '" />'
+						+ '<table>'
+						+ '<tr><td><label>Category</label></td><td>' + myObject['related_topic'] + '</td></tr>'
+						+ '<tr><td><label>Caption</label></td><td><div id="caption">' + myObject['caption'] + '</div></td></tr>'
+						+ '<tr><td></td><td><label><input type="checkbox" id="public"' + myObject['public'] + ' disabled="true" /> Viewable to public?</label></td></tr>'
+						+ '</table>';
+				
+				$("#image_details").append(details);
+				$("#large_image").css('text-align', 'center');
+				$("#image_loading").remove();
+				$("#details_loading").remove();
+			});
+		}
+		
+		$(document).ready(function() {
+			$(".btnFilterImages").click(function() {
+				filter_images(8493, $(this).val())
+			});
+			
+			$(".thumbnail").click(function() {
+				load_image_view_only($(this).attr('id'));
+			});
+			
+			$("#right_arrow").click(function() {
+				document.getElementById('image_box').scrollLeft += 117;
+			});
+			
+			$("#left_arrow").click(function() {
+				document.getElementById('image_box').scrollLeft -= 117;
+			});
+		});
+		-->
+	</script>
+
+	<script type="text/javascript">
+		<!--
+		function filter_documents(case_id, topic_value)
+		{
+			if (topic_value == "Clear")
+			{
+				$("#document_filter_RelatedTopic_id").val('');
+			}
+			
+			$("#document_box").html('');
+			$("#document_details").html('');
+			$("#document_details").append('<table id="details_loading" class="loading_bar"><tr><td>Loading... . . .<br /><img src="/images/loadingAnimation.gif" alt="Loading" /></td></tr></table>');
+			
+			$.post("/en/ajax/filter_documents/", { case_id: case_id, filter_id: $("#document_filter_RelatedTopic_id").val() }, function(json){
+				var myObject = eval(json);
+				
+				sHTML = '';
+				sHTML += '<table><tr>';
+				for(i=0; i<myObject['documents'].length; i++)
+				{
+					sHTML += '<td style="text-align:left;"><a href="javascript:load_document(' + myObject['documents'][i][0] + ');" class="document" id="doc_' + myObject['documents'][i][0] + '">' + (myObject['documents'][i][1] == '' ? 'No Title' : myObject['documents'][i][1]) + '</a></td>'
+					sHTML += '<td>(' + myObject['documents'][i][2] + ')</td></tr>'
+				}
+				sHTML += '</tr></table>';
+				
+				$("#document_box").html(sHTML);
+				$("#document_details").html('<table style="width:100%; height:100%;"><tr><td style="vertical-align:middle; text-align:center; font-size:120%; font-weight:bold;">Click on a document to view details and download.</td></tr></table>');
+			}, "json");
+		}
+		
+		function load_document_view_only(doc_id)
+		{
+			$("#document_details").show();
+			$("#document_details").html('');
+			$("#document_details").append('<table id="details_loading" class="loading_bar"><tr><td>Loading... . . .<br /><img src="/images/loadingAnimation.gif" alt="Loading" /></td></tr></table>');
+			var sURL = "/en/ajax/load_document/" + doc_id;
+			$.getJSON(sURL, function(json) {
+				var myObject = eval(json);
+				sHTML = '<input type="hidden" name="document_id" value="' + myObject['id'] + '" />'
+						+ '<table>'
+						+ '<tr><td><label>Filename</label></td><td><a href="/en/medias/download/' + myObject['id'] + '">' + myObject['filename'] + '</a></td></tr>'
+						+ '<tr><td><label>Title</label></td><td>' + myObject['title'] + '</td></tr>'
+						+ '<tr><td><label>Category</label></td><td>' + myObject['related_topic'] + '</td></tr>'
+						+ '<tr><td><label>Caption</label></td> <td><div id="doc_caption">' + myObject['caption'] + '</div></td></tr>'
+						+ '<tr><td></td><td><label><input type="checkbox" id="doc_public"' + myObject['public'] + ' disabled="true" /> Viewable to public?</label></td></tr>'
+						+ '<tr>'
+						+ '</table>';
+				$("#document_details").append(sHTML);
+				$("#details_loading").remove();
+			});
+		}
+		
+		$(document).ready(function() {
+			$(".btnFilterDocuments").click(function() {
+				filter_documents(8493, $(this).val());
+			});
+			
+			$("#document_related_topic_id").change(function() {
+				check_public_view($(this).val(), 'document_public');
+			});
+		});
+		-->
+	</script>
+
+	<script type="text/javascript">
+		<!--
+		$(document).ready(function() {
+			$("#change_manager").click(function() {
+				$(".current_manager").hide();
+				$(".change_manager").show();
+				$("#case_manager_id").attr('disabled', false);
+			})
+			
+			$("#cancel_change_manager").click(function() {
+				$("#case_manager_id").val(5577);
+				$(".current_manager").show();
+				$(".change_manager").hide();
+				$("#case_manager_id").attr('disabled', true);
+			})
+			
+			
+			
+			$("#add_new_contact").click(function() {
+				$("#new_contact_block").show();
+				$("#new_contact_button_block").hide();
+			})
+			
+			$("#cancel_new_contact").click(function() {
+				$("#new_contact_block").hide();
+				$("#new_contact_button_block").show();
+			})
+		})
+		-->
+	</script>
+
+	
+<!--[if IE 7]>
+	<style type="text/css">
+		.main input.checkbox { margin:-2px 0 0 0; border:none; }
+	</style>
+<![endif]-->
+
+<!--[if IE 6]>
+	<style type="text/css">
+		.main input.checkbox { margin:-2px 0 0 0; border:none; }
+	</style>
+<![endif]-->
+	
+</head>
+
+<!-- Global IE fix to avoid layout crash when single word size wider than column width -->
+<!--[if IE]><style type="text/css"> body {word-wrap: break-word;}</style><![endif]-->
+
+<body>
+<div id='poppedout' style='position:absolute; background: #FFFFCC; padding: 5px; border: 1px solid #000000; display:none;'>MM/DD/YYYY &nbsp; <a href='javascript:;' id='poppedout_link' class=''>Set Today</a></div>
+<!-- Main Page Container -->
+<div class="page-container">
+
+	<!-- A. HEADER -->
+	<div class="header">
+      
+		<!-- A.1 HEADER TOP -->
+		<div class="header-top">
+			<div style="position:absolute; margin:100px 0 0 800px;">
+				
+					<a href="/es/cases/8493">Espa&#xF1;ol</a>
+				
+				|
+				
+					English
+				
+			</div>
+			<img alt="National Unidentified Persons Data System" src="/images/ud_banner.png?1325800502" />
+		</div>
+		
+		<!-- A.3 HEADER BOTTOM -->
+		<div class="header-bottom">
+			<!-- Navigation Level 2 (Drop-down menus) -->
+			<div class="nav2">	
+				<!-- Navigation item -->
+				<ul>
+					<li><a href="/en">Home</a></li>
+				</ul>
+				
+				
+				<ul>
+					<li>
+						<a href="/en/search">Search<!--[if IE 7]><!--></a><!--<![endif]-->
+						<!--[if lte IE 6]><table><tr><td><![endif]-->
+						<ul>
+							<li><a href="/en/search">New Search</a></li>
+							
+							
+							
+						</ul>
+						<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+					</li>
+				</ul>
+				<ul>
+					<li><a href="/en/home/resources">Resources</a></li>
+				</ul>
+				
+				<ul>
+					<li><a href="/en/home/news">News Room</a></li>
+				</ul>
+				
+				
+				
+				<ul>
+					<li>
+						<a href="/en/home/help">Help<!--[if IE 7]><!--></a><!--<![endif]-->
+						<!--[if lte IE 6]><table><tr><td><![endif]-->
+						<ul>
+							<li><a href="/en/home/help">Help</a></li>
+							<li><a href="/en/home/faq">FAQ</a></li>
+							<li><a href="/en/home/about">About</a></li>
+							<li><a href="/en/home/contacts">Contacts</a></li>
+						</ul>
+						<!--[if lte IE 6]></td></tr></table></a><![endif]-->
+					</li>
+				</ul>
+				
+				<ul>
+					<li><a href="http://www.namus.gov">NamUs Home</a></li>
+				</ul>
+				
+				<!-- Keyword Search Box -->
+				<div class="searchform">
+					<form action="/en/search/quick" method="post"><div style="margin:0;padding:0"><input name="authenticity_token" type="hidden" value="d7a49ab667a7a68913d2395ed38a439d42d3de56" /></div>
+						<fieldset>
+							<input type="text" name="Criteria" id="search_Criteria" value=" Search..." class="field" />
+							<input type="submit" value="GO!" class="button" />
+						</fieldset>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- A.4 HEADER BREADCRUMBS -->
+	<!-- Breadcrumbs : left in here for spacer and may be used later -->
+	<div class="header-login">
+		
+			<span style="float:left;">&nbsp;</span>
+		
+		<noscript>
+			<ul>
+				<li style="color:red;">It appears you do NOT have JavaScript enabled. &nbsp; You <u>MUST</u> enable Javascript for all features of this site to work.</li>
+			</ul>
+		</noscript>
+	</div>
+
+	<!-- END OF HEADER -->
+	
+	
+
+<!-- B. MAIN -->
+<div class="main">
+
+	<!-- B.1 MAIN NAVIGATION -->
+	<div class="main-navigation">
+		<!-- Navigation Level 3 -->
+		<div class="round-border-topright"></div>
+		
+
+
+	<h1 class="first">NamUs UP # 8493</h1>
+	<dl>
+		<dt class="photo">
+			
+				<img src="/en/medias/thumb/9125" alt="" />
+			
+			<div>
+				ME/C Case Number: N1993-37273<br />
+				
+					Fairfax County, Virginia
+				
+				<br />
+				
+					26 to 34 year old
+				
+				White 
+				 
+				Female 
+			</div>
+		</dt>
+	</dl>
+	<h1>Identification Potential</h1>
+	<dl>
+		<dt class="rating">
+			
+				<img alt="Star" src="/images/star.gif?1253737907" />
+			
+				<img alt="Star" src="/images/star.gif?1253737907" />
+			
+				<img alt="Star" src="/images/star.gif?1253737907" />
+			
+				<img alt="Star" src="/images/star.gif?1253737907" />
+			
+			
+				<img alt="Grey_star" src="/images/grey_star.gif?1253737907" />
+			
+			
+			<br />
+			
+			<span>Medium - High</span>
+		</dt>
+	</dl>
+	<h1>Case Navigation</h1>
+
+
+<dl class="nav3-grid">
+	
+		<dt><a href="javascript:change_block('case_information');">Case Information
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('demographics');">Demographics
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('circumstances');">Circumstances
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('physical_medical');">Physical / Medical
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('fingerprints');">Fingerprints
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('clothing_accessories');">Clothing and Accessories
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('dental');">Dental
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('dna');">DNA
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('images');">Images
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('documents');">Documents
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('reports');">Reports
+		
+		</a></dt>
+	
+		<dt><a href="javascript:change_block('contacts');">Contacts
+		
+		</a></dt>
+	
+</dl>
+		
+	<h1 class="first">Member Login</h1>
+	<div class="loginform">
+		<form action="/en/users/login" method="post"><div style="margin:0;padding:0"><input name="authenticity_token" type="hidden" value="d7a49ab667a7a68913d2395ed38a439d42d3de56" /></div>
+			<fieldset>
+				<p>
+					<label for="user_login_Email">E-Mail</label><br />
+					<input class="field" id="user_login_email" name="user[login_email]" size="30" type="text" />
+				</p>
+				<p>
+					<label for="user_login_Password">Password</label><br />
+					<input class="field" id="user_login_password" name="user[login_password]" size="30" type="password" />
+				</p>
+				<p style="white-space:nowrap;">
+					<input type="submit" class="button" value="LOGIN" />
+					<input type="button" class="button" value="REGISTER" onclick="return location.href='/en/users/new_confirm';" />
+				</p>
+				<p><a href="/en/users/recover" id="forgotpsswd">Forgot your password?</a></p>
+			</fieldset>
+		</form>
+	</div>
+
+		<h1>Links</h1>
+<p><a href="https://www.findthemissing.org/" target="_blank">Missing Persons Database</a></p>
+<p><a href="http://claimus.org" target="_blank">UnClaimed Persons Database</a></p>
+<p>
+	<a href="http://www.ojp.usdoj.gov/nij/" target="_blank"><img alt="Nij_logo" src="/images/nij_logo.png?1253737907" /></a>
+	&nbsp; &nbsp;
+	<a href="http://www.ojp.gov" target="_blank"><img alt="Ojp_seal" src="/images/ojp_seal.png?1253737907" /></a>
+</p>
+<p><a href="http://www.usdoj.gov/" target="_blank">DOJ Home</a></p>
+<p><a href="http://www.ojp.gov" target="_blank">OJP Home</a></p>
+<p><a href="http://www.ojp.usdoj.gov/nij/" target="_blank">NIJ Home</a></p>
+<p><a href="http://www.usa.gov" target="_blank">USA.gov</a></p>
+
+<h1>Contact Us</h1>
+<table style="margin-left:5px;">
+	<tr><td style="font-weight:bold;">Phone:</td><td>1-855-626-7600</td></tr>
+	<tr><td style="font-weight:bold;">Email:</td><td><a href="mailto:questions@identifyus.org">questions@identifyus.org</a></td></tr>
+</table>
+<br />
+<br />
+	</div>
+
+	<!-- B.2 MAIN CONTENT -->
+	<div class="main-content">
+		
+		
+		<!-- Pagetitle -->
+		<div class="errors">
+			
+				
+			
+		</div>
+		<!-- Content unit - One column -->
+		<form action="/en/cases/8493" class="edit_case" enctype="multipart/form-data" id="edit_case_8493" method="post"><div style="margin:0;padding:0"><input name="_method" type="hidden" value="put" /><input name="authenticity_token" type="hidden" value="d7a49ab667a7a68913d2395ed38a439d42d3de56" /></div>
+			<input type="hidden" id="current_page" name="page" value="" />
+			
+			<div class="column1-unit" style="margin-top:0px;">
+				
+					<table id="case_arrows" cellpadding="0" cellspacing="0" style="padding:0px; margin:0px 0px 2px 0px; float:right;">
+						<tr>
+							
+								<td><img alt="" src="/images/prev_ico_dis.png?1253737907" /></td>
+							
+							
+								<td><img alt="Back to List" src="/images/list_ico_dis.png?1253737907" title="Back to List" /></td>
+							
+							
+								<td><img alt="" src="/images/next_ico_dis.png?1253737907" /></td>
+							
+						</tr>
+					</table>
+					
+					
+					
+					
+				
+			</div>
+			
+			
+			
+			
+			
+			
+			<hr class="clear-contentunit" />
+			
+			<div id="identified" style="display:none;">
+	<h1 class="pagetitle">Identified Case Information</h1>
+	
+		
+	
+		<div class="column2-unit-left">
+			<table>
+				<tr>
+					<td><label>Date entered</label></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><label for="case_identified_first_name">First Name</label></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><label for="case_identified_middle_name">Middle Name</label></td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><label for="case_identified_last_name">Last Name</label></td>
+					<td></td>
+				</tr>
+			</table>
+		</div>
+		<div class="column2-unit-right">
+			<table>
+				<tr>
+					<td colspan="4"><h3>How was the person identified?</h3></td>
+				</tr>
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_fingerprints" name="case[identified_by_fingerprints]" type="checkbox" value="1" /><input name="case[identified_by_fingerprints]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_fingerprints">Fingerprints</label></td>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_mtdna" name="case[identified_by_mtdna]" type="checkbox" value="1" /><input name="case[identified_by_mtdna]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_mtdna">mtDNA</label></td>
+				</tr>
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_dental" name="case[identified_by_dental]" type="checkbox" value="1" /><input name="case[identified_by_dental]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_dental">Dental</label></td>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_nucdna" name="case[identified_by_nucdna]" type="checkbox" value="1" /><input name="case[identified_by_nucdna]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_nucdna">nucDNA</label></td>
+				</tr>
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_radiographs" name="case[identified_by_radiographs]" type="checkbox" value="1" /><input name="case[identified_by_radiographs]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_radiographs">Radiographs</label></td>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_circumstances" name="case[identified_by_circumstances]" type="checkbox" value="1" /><input name="case[identified_by_circumstances]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_circumstances">Circumstantial</label></td>
+				</tr>
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_visual" name="case[identified_by_visual]" type="checkbox" value="1" /><input name="case[identified_by_visual]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_visual">Visual</label></td>
+					<td><input class="checkbox" disabled="disabled" id="case_identified_by_anthropological_exam" name="case[identified_by_anthropological_exam]" type="checkbox" value="1" /><input name="case[identified_by_anthropological_exam]" type="hidden" value="0" /></td>
+					<td><label class="checkbox_label" for="case_identified_by_anthropological_exam">Anthropological Exam</label></td>
+				</tr>
+			</table>
+		</div>
+	
+	
+	<hr class="clear-contentunit" />
+
+	
+</div>
+			
+			
+				
+
+<div id="case_information" class="case_block">
+	<h1 class="pagetitle">Case Information</h1>
+	
+		
+	<div class="column2-unit-left">
+		<table>
+			<tr>
+				<td><label for="case_status">Status</label></td>
+				<td>Unidentified</td>
+			</tr>
+			<tr>
+				<td><label for="case_case_number">Case number</label></td>
+				<td>N1993-37273</td>
+			</tr>
+			
+			<tr>
+				<td><label for="case_date_found_2i">Date found</label></td>
+				<td>December 06, 1993 12:01</td>
+			</tr>
+			<tr>
+				<td><label>Date created</label></td>
+				<td>February 09, 2011 11:55</td>
+			</tr>
+			<tr>
+				<td><label>Date last modified</label></td>
+				<td>August 19, 2015 12:14</td>
+			</tr>
+			<tr>
+				<td><label for="case_qa_reviewed_date_2i">Investigating agency<br />date QA reviewed</label></td>
+				<td>February 10, 2011 05:40</td>
+			</tr>
+		</table>
+	</div>
+	
+
+
+	
+	
+	<div class="spacer"></div>
+	
+	<div class="column2-unit-left">
+		<h3>Local Contact (ME/C or Other)</h3>
+		<table>
+			
+				
+					<tr class="current_contact">
+						<td><label>Name</label></td>
+						<td>Shane Chittenden</td>
+					</tr>
+				
+				<tr class="current_contact">
+					<td><label>Agency</label></td>
+					<td>Northern District ME Office</td>
+				</tr>
+				<tr class="current_contact">
+					<td><label>Phone</label></td>
+					<td>703-530-2600</td>
+				</tr>
+				
+			
+		</table>
+		
+		
+	</div>
+	
+	<div class="column2-unit-right">
+		<h3>Case Manager</h3>
+		<table>
+			
+				<tr>
+					<td><label>Name</label></td>
+					<td>David Baldwin</td>
+				</tr>
+				<tr>
+					<td><label>Phone</label></td>
+					<td>757.683.8366</td>
+				</tr>
+				
+			
+		</table>
+	</div>
+	
+	
+		<div class="spacer"></div>
+		<h3>Exclusions</h3>
+		<div class="column1-unit">
+			The following people have been ruled out as being this decedent:
+			<table class="exclusions" style="border:1px solid black; margin-bottom:2px;">
+				<tr>
+					<td class="label">First Name</td>
+					<td class="label">Last Name</td>
+					<td class="label">Year of Birth</td>
+					<td class="label">State LKA</td>
+				</tr>
+				
+				
+					<tr>
+						<td>Teresa</td>
+						<td>Abeja</td>
+						<td>1953</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr>
+						<td>Fawn</td>
+						<td>Abell</td>
+						<td>1969</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr>
+						<td>Rozlin</td>
+						<td>Abell</td>
+						<td>1966</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr>
+						<td>Robin</td>
+						<td>Abrams</td>
+						<td>1962</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr>
+						<td>Wendy</td>
+						<td>Abrams-Nishikai</td>
+						<td>1968</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Adams</td>
+						<td>1963</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>ROBYN</td>
+						<td>ADLER</td>
+						<td>1960</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ellen</td>
+						<td>Akers</td>
+						<td>1966</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ellen</td>
+						<td>Akers</td>
+						<td>1966</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Akers</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Melissa</td>
+						<td>Alaniz</td>
+						<td>1974</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Alexander</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Andrea </td>
+						<td>Allen</td>
+						<td>1959</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Allen</td>
+						<td>1958</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Brenda</td>
+						<td>Allen-Szabo</td>
+						<td>1949</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Helen</td>
+						<td>Allison</td>
+						<td>1956</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Peggy</td>
+						<td>Alt</td>
+						<td>1967</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Ambrocio</td>
+						<td>1967</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dawn</td>
+						<td>Amlo</td>
+						<td>1949</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lauren </td>
+						<td>Andersen</td>
+						<td>1961</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Anna</td>
+						<td>Anderson</td>
+						<td>1964</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Anderson</td>
+						<td>1961</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Denise</td>
+						<td>Anderson</td>
+						<td>1948</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Hope</td>
+						<td>Anderson</td>
+						<td>1934</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ida</td>
+						<td>Anderson</td>
+						<td>1937</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Katherine</td>
+						<td>Anderson</td>
+						<td>1954</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Arvanites</td>
+						<td>1962</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Maureen</td>
+						<td>Baca</td>
+						<td>1950</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Audrey</td>
+						<td>Backeberg</td>
+						<td>1942</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary Ann</td>
+						<td>Bagenstose</td>
+						<td>1958</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Andria</td>
+						<td>Bailey</td>
+						<td>1963</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tavia</td>
+						<td>Bailey</td>
+						<td>1970</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy </td>
+						<td>Baird</td>
+						<td>1952</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>MICHELLE</td>
+						<td>BAKER</td>
+						<td>1968</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>SHARI</td>
+						<td>BALL</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynn</td>
+						<td>Bandringa</td>
+						<td>1945</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Barker</td>
+						<td>1953</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Barkley</td>
+						<td>1961</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Barnett</td>
+						<td>1956</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Katherine </td>
+						<td>Barnum </td>
+						<td>1954</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Paget</td>
+						<td>Barr</td>
+						<td>1956</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carol</td>
+						<td>Batterman</td>
+						<td>1939</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rhonda</td>
+						<td>Baucom</td>
+						<td>1958</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca</td>
+						<td>Beard</td>
+						<td>1964</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Bender</td>
+						<td>1970</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Bennett</td>
+						<td>1960</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wilda Mae</td>
+						<td>Benoit</td>
+						<td>1978</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lurline</td>
+						<td>Bergeron</td>
+						<td>1976</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joan </td>
+						<td>Bernal</td>
+						<td>1954</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Phyllis</td>
+						<td>Berry</td>
+						<td>1954</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>Beste</td>
+						<td>1967</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Bonita</td>
+						<td>Bickwit</td>
+						<td>1958</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Amy</td>
+						<td>Billig</td>
+						<td>1957</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Blackburn</td>
+						<td>1958</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marie</td>
+						<td>Blee</td>
+						<td>1964</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia </td>
+						<td>Blough </td>
+						<td>1946</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Veronica</td>
+						<td>Blumhorst</td>
+						<td>1969</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Bockwith</td>
+						<td>1958</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kristy</td>
+						<td>Booth</td>
+						<td>1960</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lina</td>
+						<td>Borges</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Boston</td>
+						<td>1944</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Bostwick</td>
+						<td>1956</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Aundria</td>
+						<td>Bowman</td>
+						<td>1974</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Shelia </td>
+						<td>Bradford</td>
+						<td>1959</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Brannon</td>
+						<td>1952</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tara</td>
+						<td>Breckenridge</td>
+						<td>1968</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Niki</td>
+						<td>Britten</td>
+						<td>1953</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Britton</td>
+						<td>1944</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Britts</td>
+						<td>1963</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gina</td>
+						<td>Brooks</td>
+						<td>1975</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Brosley</td>
+						<td>1937</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carlene</td>
+						<td>Brown</td>
+						<td>1955</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Charlotte</td>
+						<td>Brown</td>
+						<td>1944</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cindy</td>
+						<td>Brown</td>
+						<td>1957</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Iris</td>
+						<td>Brown</td>
+						<td>1948</td>
+						<td>Vermont</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judith</td>
+						<td>Brown</td>
+						<td>1957</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Bruno</td>
+						<td>1961</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marilee</td>
+						<td>Bruszer</td>
+						<td>1944</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Bryson</td>
+						<td>1951</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rosemary</td>
+						<td>Buck</td>
+						<td>1953</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynn</td>
+						<td>Burdick</td>
+						<td>1964</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jo</td>
+						<td>Burmer</td>
+						<td>1947</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Burnett</td>
+						<td>1967</td>
+						<td>Alabama</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Burns</td>
+						<td>1947</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pamela</td>
+						<td>Burrows</td>
+						<td>1949</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynn</td>
+						<td>Bush</td>
+						<td>1964</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Butler</td>
+						<td>1962</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Peggy</td>
+						<td>Byars-Baisden</td>
+						<td>1941</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Byers</td>
+						<td>1961</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tracy</td>
+						<td>Byrd</td>
+						<td>1968</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wendy</td>
+						<td>Byron</td>
+						<td>1954</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rosemary</td>
+						<td>Calandriello</td>
+						<td>1952</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wendy</td>
+						<td>Camp</td>
+						<td>1969</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Cappel</td>
+						<td>1962</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Carmack</td>
+						<td>1971</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vickie</td>
+						<td>Carriere</td>
+						<td>1968</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pollyanne</td>
+						<td>Carter</td>
+						<td>1969</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Bernadette</td>
+						<td>Caruso</td>
+						<td>1963</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Peggy</td>
+						<td>Case</td>
+						<td>1960</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dolly</td>
+						<td>Caulder</td>
+						<td>1960</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Stacey</td>
+						<td>Chahorski</td>
+						<td>1969</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Benita</td>
+						<td>Chamberlin</td>
+						<td>1953</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mabel</td>
+						<td>Chambers</td>
+						<td>1920</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Chan</td>
+						<td>1970</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christina </td>
+						<td>Chandler</td>
+						<td>1961</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judith</td>
+						<td>Chartier</td>
+						<td>1964</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>ANNA </td>
+						<td>CIACCIO</td>
+						<td>1949</td>
+						<td>Nebraska</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gina</td>
+						<td>Clark</td>
+						<td>1970</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Helen</td>
+						<td>Clark</td>
+						<td>1958</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jane</td>
+						<td>Clement</td>
+						<td>1941</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Clements</td>
+						<td>1965</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>CLAUDIA</td>
+						<td>CLINGER </td>
+						<td>1950</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dorothy</td>
+						<td>Clitheroe</td>
+						<td>1959</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Josephine</td>
+						<td>Cogburn</td>
+						<td>1967</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joyce</td>
+						<td>Cogburn</td>
+						<td>1968</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Cole</td>
+						<td>1969</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Cole</td>
+						<td>1969</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rose</td>
+						<td>Cole</td>
+						<td>1956</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Coleman</td>
+						<td>1963</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diane</td>
+						<td>Collins</td>
+						<td>1948</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathryn</td>
+						<td>Collins</td>
+						<td>1957</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathryn</td>
+						<td>Collins</td>
+						<td>1957</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Shelia</td>
+						<td>Conner</td>
+						<td>1961</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynn</td>
+						<td>Connes</td>
+						<td>1955</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Constantine</td>
+						<td>1954</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Cook</td>
+						<td>1945</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Cooke</td>
+						<td>1954</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Coon</td>
+						<td>1956</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jana</td>
+						<td>Coonan</td>
+						<td>1959</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Shelia</td>
+						<td>Cooper</td>
+						<td>1952</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Corbett</td>
+						<td>1954</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carla</td>
+						<td>Corley</td>
+						<td>1965</td>
+						<td>Alabama</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jan</td>
+						<td>Cotta</td>
+						<td>1954</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Cotton</td>
+						<td>1965</td>
+						<td>North Dakota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Crawford</td>
+						<td>1952</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Melinda</td>
+						<td>Creech</td>
+						<td>1965</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Cressotti</td>
+						<td>1955</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca</td>
+						<td>Crist</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Hazel</td>
+						<td>Cross</td>
+						<td>1946</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Brenda </td>
+						<td>Crowley</td>
+						<td>1963</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Frances</td>
+						<td>Crownover</td>
+						<td>1953</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynette</td>
+						<td>Culver</td>
+						<td>1962</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Cupps</td>
+						<td>1958</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jean</td>
+						<td>Czarnecki  </td>
+						<td>1940</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pamela</td>
+						<td>Dalton</td>
+						<td>1957</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Monique</td>
+						<td>Daniels</td>
+						<td>1976</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lois </td>
+						<td>Darnopuk</td>
+						<td>1956</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherry</td>
+						<td>Daughtery</td>
+						<td>1963</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Evelyn</td>
+						<td>Davis</td>
+						<td>1962</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Davis</td>
+						<td>1956</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Krista</td>
+						<td>De La Rosa</td>
+						<td>1970</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Dean</td>
+						<td>1961</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Eva</td>
+						<td>Debruhl</td>
+						<td>1962</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>LORREE</td>
+						<td>DENNIS</td>
+						<td>1965</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laurie</td>
+						<td>Depies</td>
+						<td>1971</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>DePunte</td>
+						<td>1957</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Josephine</td>
+						<td>Despard</td>
+						<td>1958</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Audrey</td>
+						<td>Dill</td>
+						<td>Unknown</td>
+						<td>Iowa</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dail</td>
+						<td>Dinwiddie</td>
+						<td>1969</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linne</td>
+						<td>Dominelli</td>
+						<td>1950</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly  </td>
+						<td>Doss</td>
+						<td>1966</td>
+						<td>Iowa</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Doss</td>
+						<td>1962</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Douglas</td>
+						<td>1967</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kelly</td>
+						<td>Dove</td>
+						<td>1961</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Anita</td>
+						<td>Drake</td>
+						<td>1948</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Stephanie</td>
+						<td>Drnovsek</td>
+						<td>1957</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Alexis</td>
+						<td>Duggan</td>
+						<td>1951</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lilli</td>
+						<td>Dunn</td>
+						<td>1951</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Martha</td>
+						<td>Dunn</td>
+						<td>1975</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Andrea</td>
+						<td>Durham</td>
+						<td>1976</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Durst</td>
+						<td>1952</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diane</td>
+						<td>Dye</td>
+						<td>1965</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine</td>
+						<td>Eastin</td>
+						<td>1952</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carol</td>
+						<td>Edwards</td>
+						<td>1955</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Katheryne</td>
+						<td>Eggleston</td>
+						<td>1971</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Eisel</td>
+						<td>1962</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ann</td>
+						<td>Ellinwood</td>
+						<td>1965</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Megan</td>
+						<td>Emerick</td>
+						<td>1956</td>
+						<td>Alaska</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Virginia</td>
+						<td>Erickson</td>
+						<td>1941</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>TonI</td>
+						<td>Esbenshade</td>
+						<td>1959</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debbie</td>
+						<td>Escalante</td>
+						<td>1960</td>
+						<td>New Mexico</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Melissa</td>
+						<td>Espinoza</td>
+						<td>1981</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Etter</td>
+						<td>1959</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Martha</td>
+						<td>Evans</td>
+						<td>1957</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Loy</td>
+						<td>Evitts</td>
+						<td>1947</td>
+						<td>Kansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherry</td>
+						<td>Eyerly</td>
+						<td>1963</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Leann</td>
+						<td>Faulk</td>
+						<td>1963</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Fay</td>
+						<td>1972</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laurie</td>
+						<td>Feiner</td>
+						<td>1962</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wendy</td>
+						<td>Felton</td>
+						<td>1971</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathern</td>
+						<td>Fetzer</td>
+						<td>1965</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Viola</td>
+						<td>Findley</td>
+						<td>1954</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theresa</td>
+						<td>Fischbach</td>
+						<td>1969</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Fisher</td>
+						<td>1947</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Fittin</td>
+						<td>1957</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theada</td>
+						<td>Fixsen</td>
+						<td>1951</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nellie</td>
+						<td>Flickinger</td>
+						<td>1949</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laura</td>
+						<td>Flink</td>
+						<td>1947</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Melanie</td>
+						<td>Flynn</td>
+						<td>1952</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Phyllis</td>
+						<td>Flynn</td>
+						<td>1965</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dixie</td>
+						<td>Forrester</td>
+						<td>1939</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Margaret</td>
+						<td>Fox</td>
+						<td>1960</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Denise</td>
+						<td>Fraley</td>
+						<td>1952</td>
+						<td>Iowa</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nerissa</td>
+						<td>Franklin</td>
+						<td>1974</td>
+						<td>Mississippi</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Franks</td>
+						<td>1947</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>AMANDA</td>
+						<td>FRAVEL</td>
+						<td>1966</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Freeman</td>
+						<td>1976</td>
+						<td>Mississippi</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kristi</td>
+						<td>Frontera</td>
+						<td>1962</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Frost</td>
+						<td>1967</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lola</td>
+						<td>Fry</td>
+						<td>1965</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rachael </td>
+						<td>Garden</td>
+						<td>1964</td>
+						<td>New Hampshire</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joanne</td>
+						<td>Garr</td>
+						<td>1940</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca </td>
+						<td>Gary</td>
+						<td>1956</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>DAVETTE</td>
+						<td>GAUNT</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rose</td>
+						<td>Gayhart</td>
+						<td>1962</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Terry</td>
+						<td>Gayton</td>
+						<td>1959</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theresa</td>
+						<td>Geaves</td>
+						<td>1959</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>Geise</td>
+						<td>1962</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Trenny</td>
+						<td>Gibson</td>
+						<td>1960</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sharon</td>
+						<td>Giusti</td>
+						<td>1943</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Glueckert</td>
+						<td>1962</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Delores</td>
+						<td>Gonzales</td>
+						<td>1956</td>
+						<td>Mississippi</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donna </td>
+						<td>Gonzales</td>
+						<td>1964</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Arisoneide</td>
+						<td>Gosselin</td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ann </td>
+						<td>Gotlib </td>
+						<td>1971</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherie</td>
+						<td>Graves</td>
+						<td>1955</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Brenda</td>
+						<td>Green</td>
+						<td>1972</td>
+						<td>Alabama</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Helen</td>
+						<td>Green</td>
+						<td>1958</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Shannon</td>
+						<td>Green</td>
+						<td>1969</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Delores</td>
+						<td>Griffin</td>
+						<td>1942</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Camora</td>
+						<td>Grimes</td>
+						<td>1964</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Grimm</td>
+						<td>1961</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>APRIL</td>
+						<td>GRISANTI</td>
+						<td>1964</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jamie</td>
+						<td>Grissim</td>
+						<td>1955</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Clara</td>
+						<td>Grunst</td>
+						<td>1963</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Leslie</td>
+						<td>Guthrie</td>
+						<td>1947</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Heather</td>
+						<td>Guy</td>
+						<td>1953</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Gwinn-Stephens</td>
+						<td>1970</td>
+						<td>West Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Bonnie</td>
+						<td>Haim</td>
+						<td>1969</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Billie</td>
+						<td>Hall</td>
+						<td>1960</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cheryl</td>
+						<td>Hall</td>
+						<td>1953</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gina</td>
+						<td>Hall</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joan</td>
+						<td>Hall</td>
+						<td>1966</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Hamby</td>
+						<td>1962</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>HAMMON</td>
+						<td>1963</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Hammond</td>
+						<td>1971</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Hammonds </td>
+						<td>1933</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynda</td>
+						<td>Hanley</td>
+						<td>1948</td>
+						<td>Rhode Island</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marchelle</td>
+						<td>Hansen</td>
+						<td>1964</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nelda</td>
+						<td>Hardwick</td>
+						<td>1959</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Harmon</td>
+						<td>1956</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Darla</td>
+						<td>Harper</td>
+						<td>1960</td>
+						<td>Arkansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sharon</td>
+						<td>Harrer</td>
+						<td>1959</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cindy</td>
+						<td>Haumann</td>
+						<td>1959</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Georgeanne</td>
+						<td>Hawkins</td>
+						<td>1955</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Margaret</td>
+						<td>Hayes</td>
+						<td>1954</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Terrie</td>
+						<td>Hefner</td>
+						<td>1964</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Charlotte</td>
+						<td>Heimann</td>
+						<td>1954</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rogene</td>
+						<td>Helm</td>
+						<td>1952</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Raylene</td>
+						<td>Helsley</td>
+						<td>1970</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lorraine</td>
+						<td>Herbster</td>
+						<td>1962</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Bertha</td>
+						<td>Hernandez</td>
+						<td>1963</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laura</td>
+						<td>Hernandez</td>
+						<td>1955</td>
+						<td>New Mexico</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ashley</td>
+						<td>Higgins</td>
+						<td>1962</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angelia</td>
+						<td>Hilbert</td>
+						<td>1966</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Della</td>
+						<td>Hillard</td>
+						<td>Unknown</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Hilton</td>
+						<td>1949</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Hogland</td>
+						<td>1968</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vicki</td>
+						<td>Hollar</td>
+						<td>1949</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Margaret </td>
+						<td>Holst</td>
+						<td>1958</td>
+						<td>Nebraska</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Hopler</td>
+						<td>1955</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Frankie</td>
+						<td>Horsley</td>
+						<td>1964</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>June</td>
+						<td>Howard</td>
+						<td>1951</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ginger</td>
+						<td>Hudson</td>
+						<td>1960</td>
+						<td>Kansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tinze</td>
+						<td>Huels</td>
+						<td>1967</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rita</td>
+						<td>Hughes</td>
+						<td>1957</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Frankie</td>
+						<td>Hurst</td>
+						<td>1963</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Huston</td>
+						<td>1958</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine</td>
+						<td>Huyer</td>
+						<td>1960</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Eileen</td>
+						<td>Hynson</td>
+						<td>1957</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rochelle</td>
+						<td>Ihm</td>
+						<td>1966</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donna</td>
+						<td>Ingersoll</td>
+						<td>1965</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Jackson</td>
+						<td>1948</td>
+						<td>Alaska</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Catrina</td>
+						<td>Jackson</td>
+						<td>1973</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine </td>
+						<td>Jarrett</td>
+						<td>1956</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Jason</td>
+						<td>1958</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Paulette</td>
+						<td>Jaster</td>
+						<td>1954</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joanna</td>
+						<td>Jenkins</td>
+						<td>1954</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mildred</td>
+						<td>Johnson</td>
+						<td>1922</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theresa</td>
+						<td>Johnson</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gail</td>
+						<td>Joiner</td>
+						<td>1959</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rita</td>
+						<td>Jolly</td>
+						<td>1955</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Suzettte</td>
+						<td>Jones</td>
+						<td>1967</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marcia</td>
+						<td>Joyce</td>
+						<td>1950</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Suzanne</td>
+						<td>Justis</td>
+						<td>1950</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theresa</td>
+						<td>Kaiser</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Kamsch</td>
+						<td>1962</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberlie</td>
+						<td>Kantonen</td>
+						<td>1969</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gail </td>
+						<td>Katz-Bierenbaum</td>
+						<td>1956</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gail </td>
+						<td>Katz-Bierenbaum</td>
+						<td>1956</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca</td>
+						<td>Kellison</td>
+						<td>1954</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Kelly</td>
+						<td>1969</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tina</td>
+						<td>Kemp</td>
+						<td>1964</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Kent</td>
+						<td>1957</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Kenyon</td>
+						<td>1961</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Robin</td>
+						<td>Kerry</td>
+						<td>1972</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Kersey</td>
+						<td>1968</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nahita</td>
+						<td>Khatib</td>
+						<td>1946</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Kidwell</td>
+						<td>1952</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Maria</td>
+						<td>Kimbrell</td>
+						<td>1963</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cindy</td>
+						<td>King</td>
+						<td>1961</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>King</td>
+						<td>1966</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tracy</td>
+						<td>King</td>
+						<td>1960</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Kinney</td>
+						<td>1960</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Charlotte</td>
+						<td>Kinsey</td>
+						<td>1968</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>MARGARET</td>
+						<td>KIRKLAND</td>
+						<td>1955</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Kirkpatrick</td>
+						<td>1960</td>
+						<td>Montana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>KATHARINA</td>
+						<td>KISZONAK</td>
+						<td>1957</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Hazel</td>
+						<td>Klug</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Janet</td>
+						<td>Knife</td>
+						<td>1959</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Khiva</td>
+						<td>Kniffen</td>
+						<td>1954</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marjorie</td>
+						<td>Knox</td>
+						<td>1973</td>
+						<td>New Mexico</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tereasa</td>
+						<td>Knuth</td>
+						<td>1958</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>MARY</td>
+						<td>KOPACZ</td>
+						<td>1966</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>ELIZABETH</td>
+						<td>KOVALIK</td>
+						<td>1959</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Janet</td>
+						<td>Kramer</td>
+						<td>1957</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kristi</td>
+						<td>Krebs</td>
+						<td>1970</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>Kregear</td>
+						<td>1968</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elaine</td>
+						<td>Kwiatkowski</td>
+						<td>1956</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rhonda</td>
+						<td>Labbe</td>
+						<td>1956</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vicke </td>
+						<td>Lamberton</td>
+						<td>1949</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Peggy</td>
+						<td>Lammon</td>
+						<td>1961</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Landrum</td>
+						<td>1957</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine </td>
+						<td>Langford</td>
+						<td>1956</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kim</td>
+						<td>Larrow</td>
+						<td>1965</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diana</td>
+						<td>Laughlin </td>
+						<td>1950</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tina</td>
+						<td>LAYTON</td>
+						<td>1971</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ruth</td>
+						<td>Leamon</td>
+						<td>1966</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Leblanc</td>
+						<td>1968</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jody</td>
+						<td>Ledkins</td>
+						<td>1970</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kase</td>
+						<td>Lee</td>
+						<td>1966</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elaine </td>
+						<td>Lehtinen</td>
+						<td>1945</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kaycee</td>
+						<td>Lemire</td>
+						<td>1961</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Birdie</td>
+						<td>Leonard</td>
+						<td>1957</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Leppert</td>
+						<td>1965</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jackie</td>
+						<td>Leslie</td>
+						<td>1961</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Loralee</td>
+						<td>Lhotka</td>
+						<td>1955</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lorraine</td>
+						<td>Light</td>
+						<td>1968</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>GERALDINE</td>
+						<td>LISBON</td>
+						<td>1944</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lori </td>
+						<td>Lloyd</td>
+						<td>1961</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ella Beth </td>
+						<td>Lodermeier </td>
+						<td>1948</td>
+						<td>South Dakota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Long</td>
+						<td>1952</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary Jo</td>
+						<td>Long</td>
+						<td>1964</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Charlotte</td>
+						<td>Loomis</td>
+						<td>1958</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Lovell</td>
+						<td>1948</td>
+						<td>Montana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Lowe</td>
+						<td>1962</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Beatrice</td>
+						<td>Lozano-Rodriguez</td>
+						<td>1947</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynn</td>
+						<td>Luray</td>
+						<td>1948</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>ANGELA</td>
+						<td>LUTTRELL</td>
+						<td>1961</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sylvia</td>
+						<td>Lwowski</td>
+						<td>1953</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sheila</td>
+						<td>Lyon</td>
+						<td>1962</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dorothy</td>
+						<td>Madden</td>
+						<td>1948</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sheree</td>
+						<td>Magaro</td>
+						<td>1956</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Mahoney</td>
+						<td>1961</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Maine</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Catherine</td>
+						<td>Malcolmson</td>
+						<td>1969</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kim</td>
+						<td>Mallon</td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Anne</td>
+						<td>Manchester</td>
+						<td>1954</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Myra</td>
+						<td>Manley</td>
+						<td>1964</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donna</td>
+						<td>Manson</td>
+						<td>1954</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Marable</td>
+						<td>1956</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine</td>
+						<td>Markey</td>
+						<td>1970</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gayle</td>
+						<td>Marks</td>
+						<td>1969</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherry</td>
+						<td>Marler</td>
+						<td>1971</td>
+						<td>Alabama</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carolyn</td>
+						<td>Martin</td>
+						<td>1957</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Leslie</td>
+						<td>Martin-Porter</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Belinda</td>
+						<td>Martinez</td>
+						<td>1958</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vicki</td>
+						<td>Martinez</td>
+						<td>1960</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Martins </td>
+						<td>1955</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elisabeth</td>
+						<td>Martinson</td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Amy</td>
+						<td>Matthews</td>
+						<td>1959</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jonelle</td>
+						<td>Matthews</td>
+						<td>1972</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kelly</td>
+						<td>McBride</td>
+						<td>1962</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>McCall</td>
+						<td>1963</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Stacy</td>
+						<td>McCall</td>
+						<td>1974</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Penny</td>
+						<td>McClees</td>
+						<td>1953</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Monique </td>
+						<td>McClelland</td>
+						<td>1966</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>McClure</td>
+						<td>1954</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammie</td>
+						<td>McCormick</td>
+						<td>1972</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>McCoy</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>MARINTHIA</td>
+						<td>MCCOY</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>McDonald</td>
+						<td>1963</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kelly</td>
+						<td>McGinniss</td>
+						<td>1965</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lora</td>
+						<td>McIntire</td>
+						<td>1963</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>McKinley</td>
+						<td>1952</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Mclaughlin</td>
+						<td>1938</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Toni</td>
+						<td>McNatt-Chiappetta</td>
+						<td>1967</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Martha</td>
+						<td>McNiel</td>
+						<td>1959</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Maria</td>
+						<td>Medina</td>
+						<td>1970</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Meeker</td>
+						<td>1965</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Heather</td>
+						<td>Mehlhoff</td>
+						<td>1979</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Melanie</td>
+						<td>Melanson</td>
+						<td>1974</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Launa </td>
+						<td>Merritt</td>
+						<td>1966</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deanna</td>
+						<td>Merryfield</td>
+						<td>1977</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Meyer</td>
+						<td>1958</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Irin</td>
+						<td>Meyer</td>
+						<td>1950</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Meyers</td>
+						<td>1962</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Miller </td>
+						<td>1959</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cherril</td>
+						<td>Miller</td>
+						<td>1947</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christine</td>
+						<td>Miller</td>
+						<td>1958</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dawn</td>
+						<td>Miller</td>
+						<td>1970</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diana</td>
+						<td>Miller</td>
+						<td>1962</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Miller</td>
+						<td>1969</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jeanette</td>
+						<td>Miller</td>
+						<td>1953</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lula</td>
+						<td>Miller</td>
+						<td>1946</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Connie</td>
+						<td>Minchaca</td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ilene</td>
+						<td>Misheloff</td>
+						<td>1975</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pamela  </td>
+						<td>Mitchell</td>
+						<td>1962</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Misty</td>
+						<td>Mock</td>
+						<td>1966</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Monaco</td>
+						<td>1960</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Mondelli</td>
+						<td>1958</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sydney</td>
+						<td>Montanez</td>
+						<td>1965</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Avis</td>
+						<td>Mooney</td>
+						<td>1927</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Moore</td>
+						<td>1960</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Frances</td>
+						<td>Morales</td>
+						<td>1962</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Julie</td>
+						<td>Moranda</td>
+						<td>1959</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Martha</td>
+						<td>Morrison</td>
+						<td>1956</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Stacey </td>
+						<td>Morrison</td>
+						<td>1970</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kelly</td>
+						<td>Morrissey</td>
+						<td>1968</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cathy</td>
+						<td>Moulton</td>
+						<td>1955</td>
+						<td>Maine</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dawn</td>
+						<td>Mozino</td>
+						<td>1965</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sheri</td>
+						<td>Muhleman</td>
+						<td>1964</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>DORIS</td>
+						<td>MULHERN</td>
+						<td>1965</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diana</td>
+						<td>Munyon</td>
+						<td>1965</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Murphy</td>
+						<td>1955</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nahid</td>
+						<td>Nassabi</td>
+						<td>1955</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pamela</td>
+						<td>Nater</td>
+						<td>1946</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Pamela</td>
+						<td>Neal</td>
+						<td>1960</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Audrey</td>
+						<td>Nerenberg</td>
+						<td>1958</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>Nickell</td>
+						<td>1955</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vicki</td>
+						<td>Nisbett</td>
+						<td>1961</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Georgia</td>
+						<td>Nolan</td>
+						<td>1946</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Janice</td>
+						<td>Norat</td>
+						<td>1957</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sarah</td>
+						<td>Norfleet</td>
+						<td>1975</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Gail</td>
+						<td>Northington</td>
+						<td>1957</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kimberly</td>
+						<td>Norwood</td>
+						<td>1976</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dana</td>
+						<td>Null</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kerry</td>
+						<td>O'Brien-Krueger </td>
+						<td>1957</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nadine</td>
+						<td>O'Dell</td>
+						<td>1958</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>O'Sullivan</td>
+						<td>1959</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>DEBBY </td>
+						<td>OBERG</td>
+						<td>1954</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Denise</td>
+						<td>Oliverson</td>
+						<td>1950</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Opitz</td>
+						<td>1963</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Otto</td>
+						<td>1952</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Overbaugh</td>
+						<td>1958</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Victoria  </td>
+						<td>Owczynsky</td>
+						<td>1973</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Alexis</td>
+						<td>Owens</td>
+						<td>1971</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carla</td>
+						<td>Owens</td>
+						<td>1967</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Owens</td>
+						<td>1955</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Owens</td>
+						<td>1955</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Juanita</td>
+						<td>Oxenrider</td>
+						<td>1947</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Barbara</td>
+						<td>Paciotti</td>
+						<td>1949</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Amy</td>
+						<td>Pagnac</td>
+						<td>1976</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Maria</td>
+						<td>Pahl</td>
+						<td>1945</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jeanne</td>
+						<td>Palinkas</td>
+						<td>1965</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cinda</td>
+						<td>Pallett</td>
+						<td>1968</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Pandos</td>
+						<td>1971</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Eleanor </td>
+						<td>Parker</td>
+						<td>1962</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Andrea</td>
+						<td>Parsons</td>
+						<td>1983</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laurie</td>
+						<td>Partridge</td>
+						<td>1957</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Pearson</td>
+						<td>1935</td>
+						<td>Montana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Penson</td>
+						<td>1952</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Pentilla</td>
+						<td>1973</td>
+						<td>New Mexico</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary Ann</td>
+						<td>Perez</td>
+						<td>1943</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kristina</td>
+						<td>Perkins</td>
+						<td>1953</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Peroni</td>
+						<td>1955</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Perry</td>
+						<td>1980</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Janel</td>
+						<td>Peters</td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Robyn</td>
+						<td>Pettinato</td>
+						<td>1960</td>
+						<td>Montana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Elizabeth</td>
+						<td>Pfeifer</td>
+						<td>1965</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Babette </td>
+						<td>Phillips</td>
+						<td>1959</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tracy</td>
+						<td>Pickett</td>
+						<td>1978</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherry</td>
+						<td>Pickle</td>
+						<td>1956</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Danielle </td>
+						<td>Pitcher </td>
+						<td>1979</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Plavnick</td>
+						<td>1962</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Poe</td>
+						<td>1964</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Darlene</td>
+						<td>Polizzi</td>
+						<td>1947</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Madeline</td>
+						<td>Ponds</td>
+						<td>1969</td>
+						<td>Mississippi</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tamara</td>
+						<td>Porrin</td>
+						<td>1971</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Post</td>
+						<td>1961</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Shannon</td>
+						<td>Potter</td>
+						<td>1970</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wanda  </td>
+						<td>Priddy </td>
+						<td>1958</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Proud</td>
+						<td>1947</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marlene</td>
+						<td>Puchuskie</td>
+						<td>1952</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Behdokht</td>
+						<td>Pyke</td>
+						<td>1952</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dean</td>
+						<td>Pyle Peters</td>
+						<td>1966</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dean</td>
+						<td>Pyle Peters</td>
+						<td>1966</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathryn</td>
+						<td>Quackenbush</td>
+						<td>1964</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Quimby</td>
+						<td>1963</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Rader</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laureen</td>
+						<td>Rahn</td>
+						<td>1966</td>
+						<td>New Hampshire</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Laureen</td>
+						<td>Rahn</td>
+						<td>1966</td>
+						<td>New Hampshire</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sondra</td>
+						<td>Ramber</td>
+						<td>1969</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela</td>
+						<td>Ramsey</td>
+						<td>1961</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Randall</td>
+						<td>1958</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Margie</td>
+						<td>Ranshaw</td>
+						<td>1958</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patsy</td>
+						<td>Ravens</td>
+						<td>1946</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Rawlinson</td>
+						<td>1966</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandy</td>
+						<td>Rea</td>
+						<td>1966</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donnis</td>
+						<td>Redman</td>
+						<td>1943</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Betty</td>
+						<td>Redmond</td>
+						<td>1951</td>
+						<td>Maryland</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ashley</td>
+						<td>Reed</td>
+						<td>1970</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Ione</td>
+						<td>Rehwinkle</td>
+						<td>1928</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Michele</td>
+						<td>Reidenbach</td>
+						<td>1964</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Leichia</td>
+						<td>Reilly</td>
+						<td>1963</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tricia </td>
+						<td>Reitler</td>
+						<td>1974</td>
+						<td>Indiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marcia</td>
+						<td>Remick</td>
+						<td>1962</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lorrene</td>
+						<td>Reynolds</td>
+						<td>1956</td>
+						<td>Georgia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Teresa</td>
+						<td>Rhodes</td>
+						<td>1962</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>BEVERLY</td>
+						<td>RIBLEY</td>
+						<td>1946</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>ROBBIN</td>
+						<td>RICCI</td>
+						<td>1964</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dorothy</td>
+						<td>Richardson</td>
+						<td>1960</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lori</td>
+						<td>Richardson</td>
+						<td>1959</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Simone</td>
+						<td>Ridinger</td>
+						<td>1960</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Riedling</td>
+						<td>1967</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan</td>
+						<td>Riedling</td>
+						<td>1967</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Anne</td>
+						<td>Riggin</td>
+						<td>1956</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammy</td>
+						<td>Risenhoover</td>
+						<td>1964</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Isabel</td>
+						<td>Rizzo</td>
+						<td>1953</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sherry</td>
+						<td>Roach</td>
+						<td>1959</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carol</td>
+						<td>Roberts</td>
+						<td>1958</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathleen</td>
+						<td>Rodgers</td>
+						<td>1956</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carol</td>
+						<td>Rodriguez</td>
+						<td>1944</td>
+						<td>Massachusetts</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Denise</td>
+						<td>Rodriguez</td>
+						<td>1966</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Luz</td>
+						<td>Rodriguez</td>
+						<td>1960</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca </td>
+						<td>Rodriguez</td>
+						<td>1961</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lonene</td>
+						<td>Rogers</td>
+						<td>1951</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Alma</td>
+						<td>Root </td>
+						<td>1965</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sandra</td>
+						<td>Ross</td>
+						<td>1952</td>
+						<td>North Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Hannah </td>
+						<td>Rowell</td>
+						<td>1964</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cindy</td>
+						<td>Rowles</td>
+						<td>1968</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Connie</td>
+						<td>Royce</td>
+						<td>1965</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judith</td>
+						<td>Ruggirello</td>
+						<td>1939</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Korrina</td>
+						<td>Sagers Malinoski</td>
+						<td>1961</td>
+						<td>South Carolina</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Julia</td>
+						<td>Salucka</td>
+						<td>1967</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Maria</td>
+						<td>Sanchez</td>
+						<td>1963</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Janis</td>
+						<td>Sanders</td>
+						<td>1950</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wanda</td>
+						<td>Sanders</td>
+						<td>1961</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rhonda</td>
+						<td>Sansovich</td>
+						<td>1961</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Monique</td>
+						<td>Santiago</td>
+						<td>1978</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lucinda</td>
+						<td>Schaefer</td>
+						<td>1962</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cheryl</td>
+						<td>Scherer</td>
+						<td>1959</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Schmidt</td>
+						<td>1967</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Schmidt</td>
+						<td>1964</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Amber</td>
+						<td>Scholz</td>
+						<td>1960</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Juliana </td>
+						<td>Schubert</td>
+						<td>1959</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diane</td>
+						<td>Schulte</td>
+						<td>1954</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lynne</td>
+						<td>Schulze</td>
+						<td>1953</td>
+						<td>Vermont</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dorothy</td>
+						<td>Scofield</td>
+						<td>1964</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Seelbaugh</td>
+						<td>1956</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Eddy</td>
+						<td>Segall</td>
+						<td>Unknown</td>
+						<td>New Hampshire</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Faye</td>
+						<td>Self</td>
+						<td>1956</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Sellers</td>
+						<td>1956</td>
+						<td>Wyoming</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tiffany</td>
+						<td>Sessions</td>
+						<td>1968</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Denise</td>
+						<td>Sheehy</td>
+						<td>1954</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Martha </td>
+						<td>Shelton</td>
+						<td>1944</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jami</td>
+						<td>Sherer</td>
+						<td>1963</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Shoupp</td>
+						<td>1963</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>SALIE</td>
+						<td>SIGNANI</td>
+						<td>1940</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Evangeline</td>
+						<td>Silva</td>
+						<td>1958</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sally</td>
+						<td>Simmons</td>
+						<td>1973</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Catherine</td>
+						<td>Sjoberg</td>
+						<td>1957</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Catherine</td>
+						<td>Sjoberg</td>
+						<td>1957</td>
+						<td>Wisconsin</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Terry</td>
+						<td>Slaugenhoupt</td>
+						<td>1962</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Angela </td>
+						<td>Smith</td>
+						<td>1965</td>
+						<td>Louisiana</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Bertha</td>
+						<td>Smith</td>
+						<td>1913</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christina</td>
+						<td>Smith</td>
+						<td>1964</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cindy</td>
+						<td>Smith</td>
+						<td>1960</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Constance</td>
+						<td>Smith</td>
+						<td>1942</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Smith</td>
+						<td>1962</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Valerie</td>
+						<td>Smith</td>
+						<td>1960</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Margie </td>
+						<td>Snead</td>
+						<td>1954</td>
+						<td>Arkansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sharon</td>
+						<td>Sons</td>
+						<td>1965</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Spencer</td>
+						<td>1972</td>
+						<td>Ohio</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Spickler</td>
+						<td>1955</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda</td>
+						<td>St. Germaine</td>
+						<td>1960</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tracy</td>
+						<td>Stewart</td>
+						<td>1963</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sally</td>
+						<td>Stone</td>
+						<td>1964</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Suzanne</td>
+						<td>Streeter</td>
+						<td>1973</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Stefanie</td>
+						<td>Stroh</td>
+						<td>1966</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Stuart</td>
+						<td>1945</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Carol</td>
+						<td>Sullens</td>
+						<td>1972</td>
+						<td>Kansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dennise</td>
+						<td>Sullivan</td>
+						<td>1946</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Vicky </td>
+						<td>Sundgaard</td>
+						<td>1963</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Swanson</td>
+						<td>1954</td>
+						<td>Idaho</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Susan  </td>
+						<td>Swedell</td>
+						<td>1968</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary Ann</td>
+						<td>Switalski</td>
+						<td>1946</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Sylvester</td>
+						<td>1954</td>
+						<td>Virginia</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Linda </td>
+						<td>Taylor</td>
+						<td>1948</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lori</td>
+						<td>Thiel</td>
+						<td>1961</td>
+						<td>Colorado</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Thill</td>
+						<td>1952</td>
+						<td>Alaska</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judith</td>
+						<td>Thomas</td>
+						<td>1961</td>
+						<td>Arkansas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Michelle</td>
+						<td>Thomas</td>
+						<td>1967</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Thompson</td>
+						<td>1947</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Misty</td>
+						<td>Thompson</td>
+						<td>1978</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Edna</td>
+						<td>Thorne</td>
+						<td>1960</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sheryl</td>
+						<td>Tillinghast</td>
+						<td>1956</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nadine</td>
+						<td>Timm</td>
+						<td>1935</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sarah </td>
+						<td>Tokier </td>
+						<td>1960</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Deborah</td>
+						<td>Tomlinson</td>
+						<td>1957</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rebecca</td>
+						<td>Triska</td>
+						<td>1943</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donna</td>
+						<td>Urban</td>
+						<td>1959</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Donna</td>
+						<td>Urban</td>
+						<td>1959</td>
+						<td>Delaware</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Leah</td>
+						<td>Van Schoick</td>
+						<td>1965</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Belinda</td>
+						<td>VanLith</td>
+						<td>1957</td>
+						<td>Minnesota</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>PATRICIA</td>
+						<td>VAUGHAN</td>
+						<td>1963</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Emma</td>
+						<td>Vaughn</td>
+						<td>1967</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Julie</td>
+						<td>Vaughn</td>
+						<td>1956</td>
+						<td>Oregon</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Omayra </td>
+						<td>Velasquez</td>
+						<td>1972</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Wilma</td>
+						<td>Vermaas</td>
+						<td>1952</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Dianna</td>
+						<td>Vicari</td>
+						<td>1973</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Doreen</td>
+						<td>Vincent</td>
+						<td>1975</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kristi</td>
+						<td>Vorak</td>
+						<td>1969</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Debra</td>
+						<td>Vowell</td>
+						<td>1957</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joyce</td>
+						<td>Walcott</td>
+						<td>1967</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Theresa</td>
+						<td>Wallace</td>
+						<td>1956</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Marilyn</td>
+						<td>Waltz</td>
+						<td>1952</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>Wardrip</td>
+						<td>1955</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sheree</td>
+						<td>Warren</td>
+						<td>1960</td>
+						<td>Utah</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Diane</td>
+						<td>Webb</td>
+						<td>1942</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Paulette</td>
+						<td>Webster</td>
+						<td>1969</td>
+						<td>Illinois</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Mary</td>
+						<td>Weekly</td>
+						<td>1952</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Julie </td>
+						<td>Weflen </td>
+						<td>1958</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Eva</td>
+						<td>West</td>
+						<td>1957</td>
+						<td>Oklahoma</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christina</td>
+						<td>White</td>
+						<td>1967</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>White</td>
+						<td>1961</td>
+						<td>Connecticut</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Rochelle</td>
+						<td>White</td>
+						<td>1951</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Heide</td>
+						<td>Wilbur</td>
+						<td>1974</td>
+						<td>Vermont</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Kathy</td>
+						<td>Wilcox</td>
+						<td>1956</td>
+						<td>Michigan</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Tammie</td>
+						<td>Wilkinson</td>
+						<td>1965</td>
+						<td>Missouri</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Joanne</td>
+						<td>Williams</td>
+						<td>1956</td>
+						<td>Pennsylvania</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Nancy</td>
+						<td>Willis</td>
+						<td>1961</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Wilmer</td>
+						<td>1972</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Wilson</td>
+						<td>1963</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>Wilson</td>
+						<td>1960</td>
+						<td>Texas</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Selinda</td>
+						<td>Winegar</td>
+						<td>1962</td>
+						<td>Vermont</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Verla</td>
+						<td>Winter</td>
+						<td>1939</td>
+						<td>Washington</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Christie</td>
+						<td>Witcher</td>
+						<td>1969</td>
+						<td>Kentucky</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Patricia</td>
+						<td>Wood</td>
+						<td>1972</td>
+						<td>New Hampshire</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Sara</td>
+						<td>Wood</td>
+						<td>1981</td>
+						<td>New York</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Cynthia</td>
+						<td>Woolard</td>
+						<td>1957</td>
+						<td>Florida</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Judy</td>
+						<td>WORRELL</td>
+						<td>1957</td>
+						<td>California</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Jennifer</td>
+						<td>Wyant</td>
+						<td>1958</td>
+						<td>Tennessee</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Amy</td>
+						<td>Yachimec</td>
+						<td>1968</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>SHERRY</td>
+						<td>YATES</td>
+						<td>1951</td>
+						<td>Nevada</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Karen</td>
+						<td>Zendrosky</td>
+						<td>1963</td>
+						<td>New Jersey</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Lisa</td>
+						<td>Zochowski</td>
+						<td>1967</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+					<tr style="display:none;" class="hidden_exclusions">
+						<td>Grace</td>
+						<td>Zoeller</td>
+						<td>1932</td>
+						<td>Arizona</td>
+					</tr>
+					
+				
+			</table>
+			
+				<a href="javascript:show_all_exclusions();" id="show_exclusions_link">Show All Exclusions (658)</a>
+				<a href="javascript:hide_exclusions();" id="hide_exclusions_link" style="display:none;">Hide Exclusions</a>
+			
+		</div>
+	
+</div>
+			
+				<div id="demographics" class="case_block">
+	<h1 class="pagetitle">Demographics</h1>
+	
+		
+	<div class="column2-unit-left">
+		<table>
+			<tr>
+				<td><label for="case_estimated_age">Estimated age</label></td>
+				<td>Adult - Pre 40</td>
+			</tr>
+			<tr>
+				<td><label for="case_minimum_age">Minimum age</label></td>
+				<td>26 years</td>
+			</tr>
+			<tr>
+				<td><label for="case_maximum_age">Maximum age</label></td>
+				<td>34 years</td>
+			</tr>
+			<tr>
+				<td><label for="case_race">Race</label></td>
+				<td>White</td>
+			</tr>
+			<tr>
+				<td><label for="case_ethnicity">Ethnicity</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="case_sex">Sex</label></td>
+				<td>Female</td>
+			</tr>
+			<tr>
+				<td><label for="case_weight">Weight (pounds)</label></td>
+				<td>
+					,
+					Cannot Estimate
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_height">Height (inches)</label></td>
+				<td>
+					62,
+					Estimated
+				</td>
+			</tr>
+		</table>
+	</div>
+	<div class="column2-unit-right non-living">
+		<table>
+			<tr>
+				<td colspan="2"><h3>Body Parts Inventory (Check all that apply)</h3></td>
+			</tr>
+			<tr>
+				<td><input class="checkbox" disabled="disabled" id="case_body_inventory_all_parts_recovered" name="case[body_inventory_all_parts_recovered]" type="checkbox" value="1" /><input name="case[body_inventory_all_parts_recovered]" type="hidden" value="0" /></td>
+				<td><label for="case_body_inventory_all_parts_recovered">All parts recovered</label></td>
+			</tr>
+			<tr>
+				<td><input class="checkbox body_inventory_not_found" disabled="disabled" id="case_body_inventory_head_not_recovered" name="case[body_inventory_head_not_recovered]" type="checkbox" value="1" /><input name="case[body_inventory_head_not_recovered]" type="hidden" value="0" /></td>
+				<td><label for="case_body_inventory_head_not_recovered">Head not recovered</label></td>
+			</tr>
+			<tr>
+				<td><input class="checkbox body_inventory_not_found" disabled="disabled" id="case_body_inventory_torso_not_recovered" name="case[body_inventory_torso_not_recovered]" type="checkbox" value="1" /><input name="case[body_inventory_torso_not_recovered]" type="hidden" value="0" /></td>
+				<td><label for="case_body_inventory_torso_not_recovered">Torso not recovered</label></td>
+			</tr>
+			<tr>
+				<td><input checked="checked" class="checkbox body_inventory_not_found" disabled="disabled" id="case_body_inventory_limbs_not_recovered" name="case[body_inventory_limbs_not_recovered]" type="checkbox" value="1" /><input name="case[body_inventory_limbs_not_recovered]" type="hidden" value="1" /></td>
+				<td><label for="case_body_inventory_limbs_not_recovered">One or more limbs not recovered</label></td>
+			</tr>
+			<tr>
+				<td><input class="checkbox body_inventory_not_found" disabled="disabled" id="case_body_inventory_hands_not_recovered" name="case[body_inventory_hands_not_recovered]" type="checkbox" value="1" /><input name="case[body_inventory_hands_not_recovered]" type="hidden" value="0" /></td>
+				<td><label for="case_body_inventory_hands_not_recovered">One or both hands not recovered</label></td>
+			</tr>
+		</table>
+		<table>
+			
+			<tr>
+				<td><label for="case_body_condition">Body conditions</label></td>
+			</tr>
+			<tr>
+				<td>Not recognizable - Near complete or complete skeleton</td>
+			</tr>
+		</table>
+	</div>
+	<hr class="clear-contentunit non-living" />
+	<div class="column1-unit non-living">
+		<table>
+			<tr>
+				<td><label for="case_minimum_year_of_death">Probable year of death</label></td>
+				<td>
+					1989
+					to
+					1992
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_postmortem_interval">Estimated postmortem interval</label></td>
+				<td>
+					2
+					Years
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	
+</div>
+			
+				<div id="circumstances" class="case_block">
+	<h1 class="pagetitle">Circumstances</h1>
+	
+		
+	<div class="column2-unit-left">
+		<table>
+			<tr>
+				<td colspan="2"><h3>Location Found</h3></td>
+			</tr>
+			<tr>
+				<td><label for="case_gps_coordinates" style="white-space:nowrap;">GPS coordinates</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="case_address_found_1">Address 1</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="case_address_found_2">Address 2</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="case_city_found">City</label></td>
+				<td>Centerville</td>
+			</tr>
+			<tr>
+				<td><label for="case_state_found_id">State</label></td>
+				<td>Virginia</td>
+			</tr>
+			<tr>
+				<td><label for="case_zip_found">Zip code</label></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><label for="case_county_found_id">County</label></td>
+				<td>Fairfax</td>
+			</tr>
+			
+		</table>
+	</div>
+	
+	<div class="column1-unit">
+		<table>
+			<tr><td><label for="case_circumstances">Circumstances</label></td></tr>
+			<tr>
+				<td>
+					<div class="disabled_textarea" style="width:630px;" id="case_circumstances">The skeletal remains of a white female was found in a shallow grave at a construction site in Centerville, Fairfax County Virginia.  </div>
+					
+				</td>
+			</tr>
+			
+		</table>
+	</div>
+
+	
+</div>
+			
+				<div id="physical_medical" class="case_block">
+	
+		
+	<div class="column1-unit">
+		<h1 class="pagetitle">Physical</h1>
+		<table>
+			<tr>
+				<td></td>
+				<td><label for="case_hair_color">Hair color</label></td>
+				<td>Sandy</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_head_hair">Head hair</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_head_hair">Dark blond to light brown</div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_body_hair">Body hair</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_body_hair"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_facial_hair">Facial hair</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_facial_hair"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_eye_color_left">Left eye color</label></td>
+				<td>Unknown or Missing</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_eye_color_right">Right eye color</label></td>
+				<td>Unknown or Missing</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><label for="case_eye_description">Eye description</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_eye_description"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td colspan="3">
+					<hr class="clear-contentunit" />
+				</td>
+			</tr>
+			
+				<tr>
+					<td><input checked="checked" class="checkbox" disabled="disabled" id="case_physical_medical_availability_none" name="case[physical_medical_availability]" type="radio" value="none" /></td>
+					<td colspan="2"><label for="case_physical_medical_availability_none">No other distinctive body features</label></td>
+				</tr>
+			
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_physical_medical_availability_entered" name="case[physical_medical_availability]" type="radio" value="entered" /></td>
+					<td colspan="2"><label for="case_physical_medical_availability_entered">Distinctive features as described below</label></td>
+				</tr>
+			
+			<tr>
+				<td colspan="3">
+					<hr class="clear-contentunit" />
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_amputations" name="case[amputations]" type="checkbox" value="1" /><input name="case[amputations]" type="hidden" value="0" /></td>
+				<td><label for="case_amputations">Amputations</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_amputations_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_deformities" name="case[deformities]" type="checkbox" value="1" /><input name="case[deformities]" type="hidden" value="0" /></td>
+				<td><label for="case_deformities">Deformities</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_deformities_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_scars_and_marks" name="case[scars_and_marks]" type="checkbox" value="1" /><input name="case[scars_and_marks]" type="hidden" value="0" /></td>
+				<td><label for="case_scars_and_marks">Scars and marks</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_scars_and_marks_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_tattoos" name="case[tattoos]" type="checkbox" value="1" /><input name="case[tattoos]" type="hidden" value="0" /></td>
+				<td><label for="case_tattoos">Tattoos</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_tattoos_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_piercings" name="case[piercings]" type="checkbox" value="1" /><input name="case[piercings]" type="hidden" value="0" /></td>
+				<td><label for="case_piercings">Piercings</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_piercings_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_artificial_body_parts_and_aids" name="case[artificial_body_parts_and_aids]" type="checkbox" value="1" /><input name="case[artificial_body_parts_and_aids]" type="hidden" value="0" /></td>
+				<td><label for="case_artificial_body_parts_and_aids">Artificial body parts<br />and aids</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_artificial_body_parts_and_aids_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input checked="checked" class="checkbox physical_medical_check" disabled="disabled" id="case_finger_and_toe_nails" name="case[finger_and_toe_nails]" type="checkbox" value="1" /><input name="case[finger_and_toe_nails]" type="hidden" value="1" /></td>
+				<td><label for="case_finger_and_toe_nails">Finger and toe nails</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_finger_and_toe_nails_details">Fingernails had been painted a dark glossy pink.</div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_physical_other" name="case[physical_other]" type="checkbox" value="1" /><input name="case[physical_other]" type="hidden" value="0" /></td>
+				<td><label for="case_physical_other">Other distinctive<br />physical characteristics</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_physical_other_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+		</table>
+		
+		<div class="spacer"></div>
+		<h1 class="pagetitle">Medical</h1>
+		<table>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_medical_implants" name="case[medical_implants]" type="checkbox" value="1" /><input name="case[medical_implants]" type="hidden" value="0" /></td>
+				<td><label for="case_medical_implants">Medical implants</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_medical_implants_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_foreign_objects" name="case[foreign_objects]" type="checkbox" value="1" /><input name="case[foreign_objects]" type="hidden" value="0" /></td>
+				<td><label for="case_foreign_objects">Foreign objects</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_foreign_objects_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input checked="checked" class="checkbox physical_medical_check" disabled="disabled" id="case_skeletal_findings" name="case[skeletal_findings]" type="checkbox" value="1" /><input name="case[skeletal_findings]" type="hidden" value="1" /></td>
+				<td><label for="case_skeletal_findings">Skeletal findings</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_skeletal_findings_details">Skull and mandible.<br />Both scapulae.<br />Both clavicles.<br />Manubrum.<br />Both Ulnae.<br />Both Radii.<br />Left capitates.<br />Left hamate.<br />Left scaphoid.<br />Left lunate.<br />Left lesser multangular.<br />Left greater multangular.<br />Left metacarpals 1-4.<br />Left proximal phalanges 1-5.<br />Left distal phalange 1.<br />Left middle phalange 5.<br />Right metacarpals 1-4.<br />Right proximal phalanges 1-5.<br />Right distal phalanges 1-5.<br />Right middle phalanges 2-4.<br />Atlas (vertebra).<br />Axis (vertebra).<br />Cervical vertebrae 3-6.<br />Thoracic vertebrae 2-12.<br />Lumbar vertebrae 1-5.<br />Sacrum and coccyx.<br />Both innominates.<br />Left and right femora.<br />Both tibiae.<br />Both fibulae.<br />Left patella.<br />Right second and third cuneiforms.<br />Right metatarsals 2-4.<br />Fourth left metatarsal<br />One proximal toe phalanx.<br />Right ribs 1 and 2.<br />Four right ribs from 3 to 9.<br />Right Ribs 10-12.<br />Left ribs 1 and 2.<br />Left ribs 11 and 12.<br /></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_organ_absent" name="case[organ_absent]" type="checkbox" value="1" /><input name="case[organ_absent]" type="hidden" value="0" /></td>
+				<td><label for="case_organ_absent">Organ absent</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_organ_absent_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_prior_surgery" name="case[prior_surgery]" type="checkbox" value="1" /><input name="case[prior_surgery]" type="hidden" value="0" /></td>
+				<td><label for="case_prior_surgery">Prior surgery</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_prior_surgery_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><input class="checkbox physical_medical_check" disabled="disabled" id="case_medical_other" name="case[medical_other]" type="checkbox" value="1" /><input name="case[medical_other]" type="hidden" value="0" /></td>
+				<td><label for="case_medical_other">Other medical<br />information</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_medical_other_details" style="display:none;"></div>
+					
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	
+</div>
+			
+				<div id="fingerprints" class="case_block">
+	<h1 class="pagetitle">Fingerprints</h1>
+	
+		
+	
+		<table>
+			<tr>
+				<td><label>Status:</label></td>
+				<td class="view_field">
+					
+						Fingerprint information is currently not available
+					
+				</td>
+			</tr>
+		</table>
+	
+
+	
+</div>
+			
+				<div id="clothing_accessories" class="case_block">
+	<h1 class="pagetitle">Clothing and Accessories</h1>
+	
+		
+	<div class="column1-unit">
+		<table>
+			
+				<tr>
+					<td><input class="checkbox" disabled="disabled" id="case_clothing_accessories_availability_none" name="case[clothing_accessories_availability]" type="radio" value="none" /></td>
+					<td colspan="2"><label for="case_clothing_accessories_availability_none">No clothing or accessories</label></td>
+				</tr>
+			
+				<tr>
+					<td><input checked="checked" class="checkbox" disabled="disabled" id="case_clothing_accessories_availability_entered" name="case[clothing_accessories_availability]" type="radio" value="entered" /></td>
+					<td colspan="2"><label for="case_clothing_accessories_availability_entered">Clothing and accessories are described below</label></td>
+				</tr>
+			
+		</table>
+		
+		<hr class="clear-contentunit" />
+		
+		<table>
+			<tr>
+				<td><label for="case_clothing_on_body">Clothing on body</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_clothing_on_body">womens bikini underpants with lace bordering, denim  jean material "Lifesaver" label, zippers onthe outside ankle seam. A "Gigi" white brassier size 34B.</div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_clothing_with_body">Clothing with body</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_clothing_with_body"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_footwear">Footwear</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_footwear">white huarache sandles size 8B, Native American designs depicting an Indain head, geometric patterns and a hunter with an animal.</div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_jewelry">Jewelry</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_jewelry">a round gold design with inlaid aqua swirls errings & post for pierced ears.</div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_eyewear">Eyewear</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_eyewear"></div>
+					
+				</td>
+			</tr>
+			<tr>
+				<td><label for="case_other_items_with_body">Other items found<br />with body</label></td>
+				<td>
+					<div class="disabled_textarea" id="case_other_items_with_body">yellow plastic banana hair clip, red plastic hair pick</div>
+					
+				</td>
+			</tr>
+		</table>
+	</div>
+
+	
+</div>
+			
+				<div id="dental" class="case_block">
+	<h1 class="pagetitle">Dental</h1>
+	
+		
+	
+		<table>
+			<tr>
+				<td><label>Status:</label></td>
+				<td class="view_field">
+					
+						Dental information / charting is available and entered
+					
+				</td>
+			</tr>
+		</table>
+	
+
+	
+</div>
+			
+				<div id="dna" class="case_block">
+	
+		<h1 class="pagetitle">DNA</h1>
+
+	
+		<a href="/documents/NamUs-DNA_Protocol_for_Collection.pdf" target="_new">Guidelines for Collection of DNA</a>
+		<div class="spacer"></div>
+	
+	
+		<table>
+			<tr>
+				<td><label>Status:</label></td>
+				<td class="view_field">
+					
+						Sample submitted - Tests complete
+					
+				</td>
+			</tr>
+		</table>
+	
+
+
+
+	
+</div>
+			
+				<div id="images" class="case_block">
+	
+		
+
+<h1 class="pagetitle">Images</h1>
+
+<h2 style="float:left; padding-right:10px;">Filter images:</h2>
+<table class="media_filter">
+	<tr>
+		<td><label>Category</label></td>
+		<td><select class="field" id="image_filter_RelatedTopic_id" name="image_filter[RelatedTopic_id]"><option value=""></option>
+<option value="1">Facial/case ID</option>
+<option value="23">Artist Rendering</option>
+<option value="2">Fingerprint card</option>
+<option value="3">Dental chart</option>
+<option value="4">Dental radiograph</option>
+<option value="5">Other radiograph</option>
+<option value="6">Amputations</option>
+<option value="7">Deformities</option>
+<option value="8">Scars and marks</option>
+<option value="9">Tattoos</option>
+<option value="10">Piercings</option>
+<option value="11">Medical implants</option>
+<option value="12">Foreign objects</option>
+<option value="13">Skeletal findings</option>
+<option value="14">Organ absent</option>
+<option value="15">Prior surgery</option>
+<option value="16">Artificial body parts and aids</option>
+<option value="17">Finger and toe nails</option>
+<option value="18">Clothing</option>
+<option value="19">Footwear</option>
+<option value="20">Jewelry</option>
+<option value="22">Office logo</option>
+<option value="21">Other</option></select></td>
+		<td>
+			<input type="button" value="Filter" class="button_short btnFilterImages" />
+			<input type="button" value="Clear" class="button_short btnFilterImages" />
+		</td>
+	</tr>
+</table>
+
+<hr class="clear-contentunit" />
+
+<div id="large_image">
+	<table style="width:100%; height:100%;">
+		<tr>
+			<td style="vertical-align:middle; font-size:120%; font-weight:bold;">
+				Click on an image below to view a larger version.
+			</td>
+		</tr>
+	</table>
+</div>
+<div id="image_details">
+</div>
+<hr class="clear-contentunit" />
+<div class="spacer"></div>
+<div id="right_arrow"><img alt="Right -&gt;" src="/images/right_arrow.png?1253737907" /></div>
+<div id="left_arrow"><img alt="&lt;- Left" src="/images/left_arrow.png?1253737907" /></div>
+<div id="image_box">
+	<table cellspacing="4">
+		<tr>
+			
+				<td id="thumb_9125" class="thumbnail" style="vertical-align:middle;">
+					<img src="/en/medias/thumb/9125" alt="" />
+				</td>
+			
+				<td id="thumb_9126" class="thumbnail" style="vertical-align:middle;">
+					<img src="/en/medias/thumb/9126" alt="" />
+				</td>
+			
+				<td id="thumb_9127" class="thumbnail" style="vertical-align:middle;">
+					<img src="/en/medias/thumb/9127" alt="" />
+				</td>
+			
+				<td id="thumb_9128" class="thumbnail" style="vertical-align:middle;">
+					<img src="/en/medias/thumb/9128" alt="" />
+				</td>
+			
+				<td id="thumb_9129" class="thumbnail" style="vertical-align:middle;">
+					<img src="/en/medias/thumb/9129" alt="" />
+				</td>
+			
+		</tr>
+	</table>
+</div>
+	
+</div>
+			
+				<div id="documents" class="case_block">
+	
+		
+
+<h1 class="pagetitle">Documents</h1>
+
+<h2 style="float:left; padding-right:10px;">Filter documents:</h2>
+<table class="media_filter">
+	<tr>
+		<td><label>Category</label></td>
+		<td><select class="field" id="document_filter_RelatedTopic_id" name="document_filter[RelatedTopic_id]"><option value=""></option>
+<option value="1">Facial/case ID</option>
+<option value="23">Artist Rendering</option>
+<option value="2">Fingerprint card</option>
+<option value="3">Dental chart</option>
+<option value="4">Dental radiograph</option>
+<option value="5">Other radiograph</option>
+<option value="6">Amputations</option>
+<option value="7">Deformities</option>
+<option value="8">Scars and marks</option>
+<option value="9">Tattoos</option>
+<option value="10">Piercings</option>
+<option value="11">Medical implants</option>
+<option value="12">Foreign objects</option>
+<option value="13">Skeletal findings</option>
+<option value="14">Organ absent</option>
+<option value="15">Prior surgery</option>
+<option value="16">Artificial body parts and aids</option>
+<option value="17">Finger and toe nails</option>
+<option value="18">Clothing</option>
+<option value="19">Footwear</option>
+<option value="20">Jewelry</option>
+<option value="22">Office logo</option>
+<option value="21">Other</option></select></td>
+		<td>
+			<input type="button" value="Filter" class="button_short btnFilterDocuments" />
+			<input type="button" value="Clear" class="button_short btnFilterDocuments" />
+		</td>
+	</tr>
+</table>
+
+<hr class="clear-contentunit" />
+
+<div id="document_box">
+	<table cellspacing="4">
+		
+	</table>
+</div>
+<div id="document_details">
+	<table style="width:100%; height:100%;">
+		<tr>
+			<td style="vertical-align:middle; text-align:center; font-size:120%; font-weight:bold;">
+				Click on a document to view details and download.
+			</td>
+		</tr>
+	</table>
+</div>
+	
+</div>
+			
+				<div id="reports" class="case_block">
+	<h1 class="pagetitle">Reports</h1>
+	
+		<ul>
+			
+				<li><a href="/en/cases/full_report/8493" target="new">Case Report</a></li>
+			
+		</ul>
+	
+</div>
+			
+				
+
+
+	<div id="contacts" class="case_block">
+		<h1 class="pagetitle">Contacts</h1>
+		
+		<div class="column2-unit-left">
+			<h2>Local Contact</h2>
+			<table>
+				
+					
+						<tr class="current_contact">
+							<td><label>Name</label></td>
+							<td>Shane Chittenden</td>
+						</tr>
+					
+					<tr class="current_contact">
+						<td><label>Agency</label></td>
+						<td>Northern District ME Office</td>
+					</tr>
+					<tr class="current_contact">
+						<td><label>Phone</label></td>
+						<td>703-530-2600</td>
+					</tr>
+					
+				
+			</table>
+			
+			
+			
+			
+		</div>
+		
+		<div class="column2-unit-right">
+			<h2>Case Manager</h2>
+			<table>
+				
+					<tr class="current_manager">
+						<td><label>Name</label></td>
+						<td>
+							
+								David Baldwin
+							
+						</td>
+					</tr>
+					
+					<tr class="current_manager">
+						<td><label>Phone</label></td>
+						<td>757.683.8366</td>
+					</tr>
+				
+				
+			</table>
+		</div>
+		
+		<div class="spacer"></div>
+		
+		
+		
+		<div class="column2-unit-left">
+			<h2>Regional Administrator</h2>
+			<table>
+				
+					<tr>
+						<td><label>Name</label></td>
+						<td>
+							
+								Pamela Reed
+							
+						</td>
+					</tr>
+					<tr>
+						<td><label>Email</label></td>
+						<td><a href="mailto:pamela.reed@unthsc.edu?subject=NamUs%20UP%20%23%208493">pamela.reed@unthsc.edu</a></td>
+					</tr>
+					<tr>
+						<td><label>Phone</label></td>
+						<td>817-666-5432</td>
+					</tr>
+				
+			</table>
+		</div>
+		
+		
+		
+		
+	</div>
+
+			
+			
+			
+				<div id="changes" class="case_block">
+					<h1 class="pagetitle">Changes to Case</h1>
+					<div class="column1-unit">
+						There are no changes for this case.
+					</div>
+				</div>
+			
+			
+			
+				<div id="compare" class="case_block">
+					<h1 class="pagetitle">Compare to Duplicates</h1>
+					<div class="column1-unit">
+						There are no cases to compare.
+					</div>
+				</div>
+			
+			
+			
+			
+			<hr class="clear-contentunit" />
+			<div class="column1-unit">
+				<input type="button" id="btnNextPage" value="Next Page &gt;&gt;" class="button" style="float:right;" onclick="goto_next_page()" />
+				<input type="button" id="btnPreviousPage" value="&lt;&lt; Previous Page" class="button" onclick="goto_previous_page()" />
+			</div>
+		</form>
+	</div>
+</div>
+
+
+
+
+<div id="fix_translation_modal" style="display:none;">
+	<br />
+	<table cellspacing="2">
+		<tr>
+			<td style="font-weight:bold; vertical-align:top;">English:</td>
+			<td id="fix_english"></td>
+		</tr>
+		<tr>
+			<td style="font-weight:bold; vertical-align:top;">Spanish:</td>
+			<td id="fix_spanish"></td>
+		</tr>
+	</table>
+	
+	<input type="hidden" id="fix_translation_table" value="" />
+	<input type="hidden" id="fix_translation_field" value="" />
+	<input type="hidden" id="fix_translation_id" value="" />
+	<input type="hidden" id="fix_translation_field_id" value="" />
+	
+	<br />
+	<div style="text-align:center;">
+		<input type="button" value="Save" class="button" onclick="save_translation('en');" />
+		<input type="button" value="Cancel" class="button" onclick="return close_modal();" />
+	</div>
+</div>
+      
+	<!-- C. FOOTER AREA -->
+
+	<div class="footer">
+		<table>
+			<tr>
+				<td><a href="/en/home/terms_of_use">NamUs Privacy Policy</a></td>
+				<td class="last"><a href="/en/home/terms_of_use#terms_of_use">NamUs Terms Of Use</a></td>
+			</tr>
+		</table>
+		<p>Copyright &copy; 2010 &bull; All Rights Reserved &bull; Number of Visitors: 4126355</p>
+	</div>      
+</div> 
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-1587290-6");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</body>
+</html>
