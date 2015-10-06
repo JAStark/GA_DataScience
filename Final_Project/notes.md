@@ -51,6 +51,14 @@ case_id 12001 - 13001 took 3677 seconds and made the semi total 1295.
 TOTAL cases: 12358
 TOTAL OPEN cases: 10503
 
+I have 8147 cases ...missing 2356 cases...
+in html_files2 = 463 cases
+in final_project = 6253
+
+Current total = 14863
+
+NamUs current total = 12390 (10524 OPEN)... what is wrong!?
+
 
 
 

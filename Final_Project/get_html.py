@@ -12,3 +12,6 @@ def get_html(case_id):
         for b in r.iter_content(1024):
             f.write(b)
     return case_html
+    
+    
+get_html(14208)
