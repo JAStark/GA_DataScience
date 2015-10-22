@@ -1,0 +1,31 @@
+digraph Tree {
+0 [label="hour <= 6.5000\nmse = 32810.2988862\nsamples = 10886", shape="box"] ;
+1 [label="hour <= 5.5000\nmse = 1565.55897631\nsamples = 3139", shape="box"] ;
+0 -> 1 ;
+2 [label="hour <= 1.5000\nmse = 945.780263653\nsamples = 2684", shape="box"] ;
+1 -> 2 ;
+3 [label="mse = 1643.4072\nsamples = 909\nvalue = [ 44.51045105]", shape="box"] ;
+2 -> 3 ;
+4 [label="mse = 299.0916\nsamples = 1775\nvalue = [ 15.2771831]", shape="box"] ;
+2 -> 4 ;
+5 [label="workingday <= 0.5000\nmse = 2990.46461055\nsamples = 455", shape="box"] ;
+1 -> 5 ;
+6 [label="mse = 329.4689\nsamples = 145\nvalue = [ 19.99310345]", shape="box"] ;
+5 -> 6 ;
+7 [label="mse = 2061.6634\nsamples = 310\nvalue = [ 102.57741935]", shape="box"] ;
+5 -> 7 ;
+8 [label="hour <= 20.5000\nmse = 31077.582403\nsamples = 7747", shape="box"] ;
+0 -> 8 ;
+9 [label="hour <= 15.5000\nmse = 32410.3147204\nsamples = 6379", shape="box"] ;
+8 -> 9 ;
+10 [label="mse = 24562.5384\nsamples = 4099\nvalue = [ 243.9499878]", shape="box"] ;
+9 -> 10 ;
+11 [label="mse = 39022.8623\nsamples = 2280\nvalue = [ 351.95877193]", shape="box"] ;
+9 -> 11 ;
+12 [label="hour <= 22.5000\nmse = 6236.56606306\nsamples = 1368", shape="box"] ;
+8 -> 12 ;
+13 [label="mse = 6660.6945\nsamples = 912\nvalue = [ 153.47368421]", shape="box"] ;
+12 -> 13 ;
+14 [label="mse = 2660.6359\nsamples = 456\nvalue = [ 89.50877193]", shape="box"] ;
+12 -> 14 ;
+}
