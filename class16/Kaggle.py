@@ -146,8 +146,23 @@ We created a document term matrix for Title. How about doing the same for BodyMa
 Can you think of any custom features for Title? Like, we theorized that all 
 lowercase titles might be indicative of bad questions. Can you create that as a feature?
 What about using sentiment of the Title or BodyMarkdown as a feature?
+'''
+
+def nlp_accuracy(feature_col):
+    X = train[feature_col]
+    y = train.OpenStatus
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
+    vect = CountVectorizer(stop_words='english')
+    X_train_dtm = vect.fit_transform(X_train)
+    X_test_dtm = vect.transform(X_test)
+    nb = MultinomialNB()
+    nb.fit(X_train_dtm, y_train)
+    y_pred_class = nb.predict(X_test_dtm)
+    y_pred_prob = nb.predict_proba(X_test_dtm)
+    return metrics.confusion_matrix(y_test, y_pred_class), metrics.log_loss(y_test, y_pred_prob)
 
 
-
+feature_cols = ['Title']
+nlp_accuracy('Title')
 
 
